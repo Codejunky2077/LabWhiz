@@ -29,47 +29,6 @@ def convert_vol(value, from_unit, to_base=True):
     factor = VOLUME_UNITS[from_unit]
     return value * factor if to_base else value / factor
 
-# --- Streamlit App --- #
-st.title("🧬BufferBuddy")
-st.header("Welcome to BufferBuddy")
-st.write("Most simplistic calculator especially designed for wet lab fellas for their daily shenanigans.")
-def BufferBuddy():
-    type = st.selectbox("Select the type of calculation needed...",[
-        "",
-        "Simple dilution",
-        "Serial dilution",
-        "Molarity",
-        "Weight/Volume(%w/v)",
-        "Volume/Volume (% v/v)",
-        "Molarity Dilution",
-        "DNA/RNA/Protein Dilution",
-        "CFU / Cell Culture Calculation",
-        "General Dilution Factor"])
-    
-    if type =="Simple dilution":
-        simpledilution()
-    elif type =="Serial dilution":
-        serialdilution()
-    elif type=="Molarity":
-        molarity()
-    elif type=="Weight/Volume(%w/v)":
-        wv()
-    elif type=="Volume/Volume (% v/v)":
-        vv()
-    elif type=="Molarity Dilution":
-        md()
-    elif type=="DNA/RNA/Protein Dilution":
-        drpdilution()
-    elif type=="CFU / Cell Culture Calculation":
-        cc()
-    elif type=="General Dilution Factor":
-        gdf()
-
-
-if __name__ == '__main__':
-    BufferBuddy()  
-
-
 #different calculation functions
 def simpledilution():
     st.info("Use: To dilute a stock solution to a lower concentration directly.Common in buffer prep, reagent dilution, etc.")
@@ -95,7 +54,12 @@ def simpledilution():
             C2_u = convert_conc(C2, C2_unit)
             V2_u = convert_vol(V2, V2_unit)
 
-            V1_uL = (C2_u * V2_u) / C1_u
+            try:
+                V1_uL = (C2_u * V2_u) / C1_u
+            except Exception as e:
+                st.error(f"Error in dilution calculation: {str(e)}")
+                return
+
             V1_converted = convert_vol(V1_uL, output_unit, to_base=False)
 
             st.success(f"Needed Volume (V₁): {V1_converted:.2f} {output_unit}")
@@ -122,9 +86,13 @@ def serialdilution():
             st.error("Desired concentration must be lower than starting concentration.")
         else:
             total_dilution = C1_u / C2_u
-            steps_needed = math.ceil(math.log(total_dilution, dilution_factor))
-            actual_final = C1_u / (dilution_factor ** steps_needed)
-            actual_final_user_unit = convert_conc(actual_final, C2_unit, to_base=False)
+            try:
+                steps_needed = math.ceil(math.log(total_dilution, dilution_factor))
+                actual_final = C1_u / (dilution_factor ** steps_needed)
+                actual_final_user_unit = convert_conc(actual_final, C2_unit, to_base=False)
+            except Exception as e:
+                st.error(f"Error in serial dilution: {str(e)}")
+                return
 
             st.success(f"You need {steps_needed} serial dilution step(s) to reach ~{actual_final_user_unit:.4f} {C2_unit} from {C1} {C1_unit}")
             st.caption(f"Each step: {volume_stock} µL + {volume_diluent} µL diluent (1:{dilution_factor} dilution)")
@@ -142,7 +110,12 @@ def molarity():
             volume_in_L = volume * VOLUME_UNITS[volume_unit] / 1_000_000  # μL-based to L
                     # Calculate moles and mass
             moles = molarity * volume_in_L
-            mass = moles * mw  # in grams
+            try:
+                mass = moles * mw  # in grams
+            except Exception as e:
+                st.error(f"Error in molarity calculation: {str(e)}")
+                return
+
 
             unit = "mg" if mass < 1 else "g"
             mass_out = mass * 1000 if unit == "mg" else mass
@@ -211,7 +184,11 @@ def md():
             st.error("Target molarity (M₂) cannot exceed starting molarity (M₁).")
         else:
             V2_uL = convert_vol(V2, V2_unit)  # Convert to µL
-            V1_uL = (M2 * V2_uL) / M1         # µL by default
+            try:
+                V1_uL = (M2 * V2_uL) / M1
+            except Exception as e:
+                st.error(f"Error in molarity dilution: {str(e)}")
+                return
             V1_out = convert_vol(V1_uL, output_unit, to_base=False)
 
             st.success(f"You need to pipette **{V1_out:.2f} {output_unit}** of {M1} M solution.")
@@ -243,7 +220,11 @@ def drpdilution():
                 C2_base = convert_conc(C2, C2_unit)
                 V2_base = convert_vol(V2, V2_unit)
 
-                V1_uL = (C2_base * V2_base) / C1_base
+                try:
+                   V1_uL = (C2_base * V2_base) / C1_base
+                except Exception as e:
+                    st.error(f"Error in biomolecule dilution: {str(e)}")
+                    return
                 V1_out = convert_vol(V1_uL, output_unit, to_base=False)
 
                 st.success(f"You need {V1_out:.2f} {output_unit} of {C1} {C1_unit} solution.")
@@ -259,7 +240,11 @@ def drpdilution():
         if st.button("Calculate Mass"):
             conc_base = convert_conc(conc, conc_unit)  # ng/μL
             vol_base = convert_vol(vol, vol_unit)      # μL
-            mass_ng = conc_base * vol_base
+            try:
+                mass_ng = conc_base * vol_base
+            except Exception as e:
+                st.error(f"Error in mass calculation: {str(e)}")
+                return
 
             unit = "ng"
             if mass_ng >= 1e6:
@@ -284,7 +269,11 @@ def cc():
         if colonies == 0 or plated_volume == 0:
             st.error("Colony count and volume plated must be greater than zero.")
         else:
-            cfu_per_mL = (colonies * dilution_factor) / plated_volume
+            try:
+                cfu_per_mL = (colonies * dilution_factor) / plated_volume
+            except Exception as e:
+                st.error(f"Error in CFU calculation: {str(e)}")
+                return
             st.success(f"Estimated concentration: **{cfu_per_mL:.2e} CFU/mL**")
             st.caption(f"Based on {colonies} colonies at 1:{int(dilution_factor)} dilution and {plated_volume} mL plated.")
 def gdf():
@@ -301,6 +290,51 @@ def gdf():
         if final_vol_uL <= stock_vol_uL:
             st.error("Final volume must be greater than stock volume to indicate dilution.")
         else:
-            dilution_factor = final_vol_uL / stock_vol_uL
+            try:
+                dilution_factor = final_vol_uL / stock_vol_uL
+            except Exception as e:
+                st.error(f"Error in dilution factor calculation: {str(e)}")
+                return
             st.success(f"Dilution Factor: **1:{dilution_factor:.2f}**")
             st.caption(f"You diluted {stock_volume:.2f} {unit} up to {final_volume:.2f} {unit}, giving a 1:{dilution_factor:.2f} dilution.")
+
+
+#main webapp Bufferbuddy
+def BufferBuddy():
+    st.title("🧬BufferBuddy")
+    st.header("Welcome to BufferBuddy")
+    st.write("Most simplistic calculator especially designed for wet lab fellas for their daily shenanigans.")
+    type = st.selectbox("Select the type of calculation needed...",[
+        "",
+        "Simple dilution",
+        "Serial dilution",
+        "Molarity",
+        "Weight/Volume(%w/v)",
+        "Volume/Volume (% v/v)",
+        "Molarity Dilution",
+        "DNA/RNA/Protein Dilution",
+        "CFU / Cell Culture Calculation",
+        "General Dilution Factor"])
+    
+    if type =="Simple dilution":
+        simpledilution()
+    elif type =="Serial dilution":
+        serialdilution()
+    elif type=="Molarity":
+        molarity()
+    elif type=="Weight/Volume(%w/v)":
+        wv()
+    elif type=="Volume/Volume (% v/v)":
+        vv()
+    elif type=="Molarity Dilution":
+        md()
+    elif type=="DNA/RNA/Protein Dilution":
+        drpdilution()
+    elif type=="CFU / Cell Culture Calculation":
+        cc()
+    elif type=="General Dilution Factor":
+        gdf()
+
+
+if __name__ == '__main__':
+    BufferBuddy()  
