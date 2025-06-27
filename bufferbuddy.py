@@ -303,7 +303,7 @@ def gdf():
 def BufferBuddy():
     st.title("🧬BufferBuddy")
     st.header("Welcome to BufferBuddy")
-    st.write("Most simplistic calculator especially designed for wet lab fellas for their daily shenanigans.")
+    st.write("The simplest wetlab calculator you will actually use daily")
     type = st.selectbox("Select the type of calculation needed...",[
         "",
         "Simple dilution",
