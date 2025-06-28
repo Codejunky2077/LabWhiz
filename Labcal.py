@@ -299,10 +299,10 @@ def gdf():
             st.caption(f"You diluted {stock_volume:.2f} {unit} up to {final_volume:.2f} {unit}, giving a 1:{dilution_factor:.2f} dilution.")
 
 
-#main webapp Bufferbuddy
-def BufferBuddy():
-    st.title("🧬BufferBuddy")
-    st.header("Welcome to BufferBuddy")
+#main webapp Labcal
+def Labcal():
+    st.title("🧬Labcal")
+    st.header("Welcome to Labcal")
     st.write("The simplest wetlab calculator you will actually use daily")
     type = st.selectbox("Select the type of calculation needed...",[
         "",
@@ -337,4 +337,4 @@ def BufferBuddy():
 
 
 if __name__ == '__main__':
-    BufferBuddy()  
+    Labcal()  
