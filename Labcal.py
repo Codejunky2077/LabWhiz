@@ -301,7 +301,7 @@ def gdf():
 
 #main webapp Labcal
 def Labcal():
-    st.title("🧬Labcal")
+    st.title("👩‍🔬Labcal")
     st.header("Welcome to Labcal")
     st.write("The simplest wetlab calculator you will actually use daily")
     type = st.selectbox("Select the type of calculation needed...",[
