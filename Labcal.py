@@ -1,6 +1,101 @@
 import streamlit as st
 import math
 
+st.set_page_config(page_title="Labcal by Bionika", page_icon="🧪", layout="wide")
+#css inject for appearance
+st.markdown("""
+    <style>
+      /* Root & typography */
+      .stApp {
+        background: #1e1e2f;
+        color: #e0e0e0 !important;
+        font-family: 'Inter', sans-serif !important;
+      }
+
+      /* Section cards */
+      .stContainer, .stExpander {
+        background: #2b2b3c !important;
+        border-radius: 10px !important;
+        padding: 1rem 1.25rem !important;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.5) !important;
+        margin-bottom: 1rem !important;
+        border: 2px solid #44475a !important;
+      }
+
+      /* Inputs & textareas */
+      input, textarea {
+        background: #1e1e2f !important;
+        border: 2px solid #50505f !important;
+        border-radius: 6px !important;
+        padding: 0.5rem !important;
+        color: #e0e0e0 !important;
+        transition: box-shadow 0.2s ease !important;
+      }
+      input:focus, textarea:focus {
+        border-color: #7dd3fc !important;
+        outline: none !important;
+        box-shadow: 0 0 4px rgba(125,211,252,0.5) !important;
+      }
+
+      /* Selectboxes – single outer box only */
+      .stSelectbox > div {
+        background: #1e1e2f !important;
+        border: 2px solid #50505f !important;
+        border-radius: 6px !important;
+        padding: 0.4rem 0.6rem !important;
+        color: #e0e0e0 !important;
+      }
+      .stSelectbox [role="combobox"] {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+      .stSelectbox [role="combobox"] input {
+        display: none !important;
+      }
+      .stSelectbox [role="combobox"] svg {
+        fill: #e0e0e0 !important;
+        pointer-events: none;
+      }
+
+      /* Buttons */
+      .stButton > button {
+        background: #7dd3fc !important;
+        color: #1e1e2f !important;
+        border: none !important;
+        border-radius: 8px !important;
+        padding: 0.6rem 1.2rem !important;
+        font-weight: 600 !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.4) !important;
+        transition: background 0.15s ease !important;
+      }
+      .stButton > button:hover {
+        background: #38bdf8 !important;
+      }
+
+      /* Captions & info text */
+      .stCaption, .stInfo {
+        color: #b0b0b0 !important;
+        font-size: 0.85rem !important;
+      }
+
+      /* Force all titles & headers to white */
+      .stTitle > div,
+      .stHeader > div,
+      .stSubheader > div,
+      .stMarkdown h1,
+      .stMarkdown h2,
+      .stMarkdown h3,
+      .stApp h1,
+      .stApp h2,
+      .stApp h3 {
+        color: #ffffff !important;
+      }
+    </style>
+""", unsafe_allow_html=True)
+
 # --- Unit Conversion Maps --- #
 CONCENTRATION_UNITS = {
     "ng/μL": 1,
@@ -32,17 +127,19 @@ def convert_vol(value, from_unit, to_base=True):
 #different calculation functions
 def simpledilution():
     st.info("Use: To dilute a stock solution to a lower concentration directly.Common in buffer prep, reagent dilution, etc.")
+    col1,col2=st.columns(2)
+    
+    with col1:
+        C1 = st.number_input("Original Concentration (C₁)", min_value=0.0, step=0.1, format="%.4f",help="Its asking for the starting concentration of your solution.")
+        C1_unit = st.selectbox("C₁ Unit", list(CONCENTRATION_UNITS))
+    with col2:
+        C2 = st.number_input("Target Concentration (C₂)", min_value=0.0, step=0.1, format="%.4f",help="Its asking for Diluted concentration you need for experiments.")
+        C2_unit = st.selectbox("C₂ Unit", list(CONCENTRATION_UNITS))
 
-    C1 = st.number_input("Original Concentration (C₁)", min_value=0.0, step=0.1, format="%.4f")
-    C1_unit = st.selectbox("C₁ Unit", list(CONCENTRATION_UNITS))
-
-    C2 = st.number_input("Target Concentration (C₂)", min_value=0.0, step=0.1, format="%.4f")
-    C2_unit = st.selectbox("C₂ Unit", list(CONCENTRATION_UNITS))
-
-    V2 = st.number_input("Final Volume (V₂)", min_value=0.0, step=0.1, format="%.4f")
+    V2 = st.number_input("Final Volume (V₂)", min_value=0.0, step=0.1, format="%.4f",help="Asking for how much of quantity you want as final solution.")
     V2_unit = st.selectbox("V₂ Unit", list(VOLUME_UNITS))
 
-    output_unit = st.selectbox("Output Volume Unit (V₁)", list(VOLUME_UNITS))
+    output_unit = st.selectbox("Output Volume Unit (V₁)", list(VOLUME_UNITS),help="You can change unit of solution you need which is possible in your lab.")
 
     if st.button("Get needed Volume (V₁)"):
         if C1 == 0 or C2 == 0 or V2 == 0:
@@ -61,17 +158,17 @@ def simpledilution():
                 return
 
             V1_converted = convert_vol(V1_uL, output_unit, to_base=False)
-
             st.success(f"Needed Volume (V₁): {V1_converted:.2f} {output_unit}")
             st.caption(f"Pipette {V1_converted:.2f} {output_unit} of {C1:.2f} {C1_unit} stock and dilute to {V2:.2f} {V2_unit} to get {C2:.2f} {C2_unit}.")
 def serialdilution():
     st.info("Use: When you need very high dilutions (e.g., 1:10000), which are impractical in one step.Common in microbiology and pharmacology.")
-
-    C1 = st.number_input("Initial Concentration (C₁)", min_value=0.0, step=0.1, format="%.4f")
-    C1_unit = st.selectbox("C₁ Unit", list(CONCENTRATION_UNITS))
-
-    C2 = st.number_input("Desired Final Concentration (C₂)", min_value=0.0, step=0.1, format="%.4f")
-    C2_unit = st.selectbox("C₂ Unit", list(CONCENTRATION_UNITS))
+    col1,col2=st.columns(2)
+    with col1:
+        C1 = st.number_input("Initial Concentration (C₁)", min_value=0.0, step=0.1, format="%.4f",help="Its asking for the starting concentration of your solution.")
+        C1_unit = st.selectbox("C₁ Unit", list(CONCENTRATION_UNITS))
+    with col2:
+        C2 = st.number_input("Desired Final Concentration (C₂)", min_value=0.0, step=0.1, format="%.4f",help="Asking for how much of quantity you want as final solution.")
+        C2_unit = st.selectbox("C₂ Unit", list(CONCENTRATION_UNITS))
 
     dilution_factor = st.number_input("Dilution Ratio per Step (e.g., 1:10 → enter 10)", min_value=1.0, step=1.0)
 
@@ -98,8 +195,8 @@ def serialdilution():
             st.caption(f"Each step: {volume_stock} µL + {volume_diluent} µL diluent (1:{dilution_factor} dilution)")
 def molarity():
     st.info("Use: Quickly calculate how much solute is needed to make a solution of desired molarity.Common in: solution prep, reagents, buffers, and media preparation.")
-    molarity=st.number_input("Desired molarity(mol/L)",min_value=0.0, step=0.001, format="%.4f")
-    volume=st.number_input("Enter volume",min_value=0.0, step=0.01, format="%.2f")
+    molarity=st.number_input("Desired molarity(mol/L)",min_value=0.0, step=0.001, format="%.4f",help="Molarity that you wish to achieve")
+    volume=st.number_input("Enter volume",min_value=0.0, step=0.01, format="%.2f",help="Volume of solution you actually have. ")
     volume_unit=st.selectbox("Enter the unit of volume",list(VOLUME_UNITS))
     mw=st.number_input("Enter Molecular weight(g/mol)",min_value=0.0, step=0.001, format="%.4f")
 
@@ -169,10 +266,10 @@ def vv():
 def md():
     st.info("Use:\nDilute a molar solution from a concentrated stock.\nCommon in buffer preparation, titrations, and chemical reactions.")
 
-    M1 = st.number_input("Initial Molarity (M₁)", min_value=0.0, step=0.001, format="%.4f")
-    M2 = st.number_input("Target Molarity (M₂)", min_value=0.0, step=0.001, format="%.4f")
+    M1 = st.number_input("Initial Molarity (M₁)", min_value=0.0, step=0.001, format="%.4f",help="Molarity of solution you actually have.")
+    M2 = st.number_input("Target Molarity (M₂)", min_value=0.0, step=0.001, format="%.4f",help="Molarity of solution you want to achieve.")
 
-    V2 = st.number_input("Final Volume (V₂)", min_value=0.0, step=0.01, format="%.4f")
+    V2 = st.number_input("Final Volume (V₂)", min_value=0.0, step=0.01, format="%.4f",help="Amount of solution you want to have with desired molarity.")
     V2_unit = st.selectbox("V₂ Unit", list(VOLUME_UNITS.keys()))
 
     output_unit = st.selectbox("Output Volume Unit (V₁)", list(VOLUME_UNITS.keys()))
@@ -196,17 +293,19 @@ def md():
 def drpdilution():
     st.info("Use:\nDilute nucleic acids or proteins to desired working concentrations.\nCommon in PCR, gel loading, extractions, assays.")
 
-    calc_type = st.radio("Choose what you want to calculate:", ["Dilution Volume (C₁×V₁ = C₂×V₂)", "Mass in Given Volume"])
+    calc_type = st.radio("Choose what you want to calculate:", ["Dilution Volume (C₁×V₁ = C₂×V₂)", "Mass in Given Volume"],help="Two types of problem arise from wet lab here both types are given.")
 
     if calc_type == "Dilution Volume (C₁×V₁ = C₂×V₂)":
-        C1 = st.number_input("Stock Concentration (C₁)", min_value=0.0, step=0.1, format="%.4f")
-        C1_unit = st.selectbox("C₁ Unit", list(CONCENTRATION_UNITS.keys()))
-
-        C2 = st.number_input("Target Concentration (C₂)", min_value=0.0, step=0.1, format="%.4f")
-        C2_unit = st.selectbox("C₂ Unit", list(CONCENTRATION_UNITS.keys()))
-
-        V2 = st.number_input("Final Volume (V₂)", min_value=0.0, step=0.1, format="%.4f")
-        V2_unit = st.selectbox("V₂ Unit", list(VOLUME_UNITS.keys()))
+        col1,col2,col3=st.columns(3)
+        with col1:
+            C1 = st.number_input("Stock Concentration (C₁)", min_value=0.0, step=0.1, format="%.4f")
+            C1_unit = st.selectbox("C₁ Unit", list(CONCENTRATION_UNITS.keys()))
+        with col2:
+            C2 = st.number_input("Target Concentration (C₂)", min_value=0.0, step=0.1, format="%.4f")
+            C2_unit = st.selectbox("C₂ Unit", list(CONCENTRATION_UNITS.keys()))
+        with col3:
+            V2 = st.number_input("Final Volume (V₂)", min_value=0.0, step=0.1, format="%.4f")
+            V2_unit = st.selectbox("V₂ Unit", list(VOLUME_UNITS.keys()))
 
         output_unit = st.selectbox("Output Volume Unit (V₁)", list(VOLUME_UNITS.keys()))
 
@@ -279,7 +378,7 @@ def cc():
 def gdf():
     st.info("Use:\nCalculate how much dilution occurred based on initial volume and final total volume.\nCommon in: buffer prep, enzyme assays, reagent use.")
 
-    stock_volume = st.number_input("Volume of Stock Used", min_value=0.0001, step=0.1, format="%.4f")
+    stock_volume = st.number_input("Volume of initial stock Used", min_value=0.0001, step=0.1, format="%.4f")
     final_volume = st.number_input("Final Volume after Dilution", min_value=0.0001, step=0.1, format="%.4f")
     unit = st.selectbox("Select Unit", list(VOLUME_UNITS.keys()))  # Uses your unified volume unit map
 
@@ -314,27 +413,35 @@ def Labcal():
         "Molarity Dilution",
         "DNA/RNA/Protein Dilution",
         "CFU / Cell Culture Calculation",
-        "General Dilution Factor"])
+        "General Dilution Factor"],help="Use the type of calculation u want related to your lab work.")
     
     if type =="Simple dilution":
+        st.header("Simple dilution")
         simpledilution()
     elif type =="Serial dilution":
+        st.header("Serial dilution")
         serialdilution()
     elif type=="Molarity":
+        st.header("Molarity")
         molarity()
     elif type=="Weight/Volume(%w/v)":
+        st.header("Weight/Volume(%w/v)")
         wv()
     elif type=="Volume/Volume (% v/v)":
+        st.header("Volume/Volume (% v/v)")
         vv()
     elif type=="Molarity Dilution":
+        st.header("Molarity Dilution")
         md()
     elif type=="DNA/RNA/Protein Dilution":
+        st.header("DNA/RNA/Protein Dilution")
         drpdilution()
     elif type=="CFU / Cell Culture Calculation":
+        st.header("CFU / Cell Culture Calculation")
         cc()
     elif type=="General Dilution Factor":
+        st.header("General Dilution Factor")
         gdf()
-
 
 if __name__ == '__main__':
     Labcal()  
