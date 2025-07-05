@@ -1,8 +1,32 @@
 import streamlit as st
 import math
+from PIL import Image
+#Tab appearance
+st.set_page_config(page_title="Labcal by Bionika", page_icon=Image.open("tab_logo.png"), layout="wide")
 
-st.set_page_config(page_title="Labcal by Bionika", page_icon="🧪", layout="wide")
 #css inject for appearance
+#text
+st.markdown("""
+<img src="https://img.icons8.com/fluency/96/lab-items.png" width="48" style="margin-right:10px; vertical-align: middle;" />
+<span style="font-size: 32px; font-weight: 700;">Labcal</span>  
+<span style="color: #9ca3af;">by Bionika</span>  
+<br><br>
+
+<div style="font-size: 17px; line-height: 1.6">
+A precision-built wet lab calculator designed for modern biology labs.  
+From molarity to serial dilutions, Labcal simplifies every step with clarity and speed.
+</div>
+
+---
+
+<div style="font-size: 15px; color: #9ca3af;">
+Used by researchers, students, and teams who value speed, accuracy, and sanity in daily workflows.
+</div>
+""", unsafe_allow_html=True)
+
+
+
+#theme
 st.markdown("""
     <style>
       /* Root & typography */
@@ -400,9 +424,6 @@ def gdf():
 
 #main webapp Labcal
 def Labcal():
-    st.title("👩‍🔬Labcal")
-    st.header("Welcome to Labcal")
-    st.write("The simplest wetlab calculator you will actually use daily")
     type = st.selectbox("Select the type of calculation needed...",[
         "",
         "Simple dilution",
