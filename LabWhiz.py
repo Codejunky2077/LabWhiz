@@ -2,22 +2,22 @@ import streamlit as st
 import math
 from PIL import Image
 #Tab appearance
-st.set_page_config(page_title="Labcal by Bionika", page_icon=Image.open("tab_logo.png"), layout="wide")
+st.set_page_config(page_title="LabWhiz by Bionika", page_icon=Image.open("tab_logo.png"), layout="wide")
 
 #css inject for appearance
 #text
 st.markdown("""
 <img src="https://img.icons8.com/fluency/96/lab-items.png" width="48" style="margin-right:10px; vertical-align: middle;" />
-<span style="font-size: 32px; font-weight: 700;">Labcal</span>  
+<span style="font-size: 32px; font-weight: 700;">LabWhiz</span>  
 <span style="color: #9ca3af;">by Bionika</span>  
 <br>
 
 <div style="font-size: 19px; font-weight: 700; margin-top: 6px; margin-bottom: 14px;">
-When precision matters, Labcal delivers — no errors, no guesswork.
+When precision matters, LabWhiz delivers — no errors, no guesswork.
 </div>
             
 <div style="font-size: 17px; line-height: 1.6">
-Labcal is built to catch what your eye misses — precise, reliable, and scientifically accurate every single time.<br>
+LabWhiz is built to calculate and catch what your eye misses — precise, reliable, and scientifically accurate every single time.<br>
 It meets you where you work — in quiet benches, busy labs, and every place science demands precision.
 </div>
 
@@ -509,8 +509,8 @@ def gdf():
             st.caption(f"You diluted {stock_volume:.2f} {unit} up to {final_volume:.2f} {unit}, giving a 1:{dilution_factor:.2f} dilution.")
 
 
-#main webapp Labcal
-def Labcal():
+#main webapp LabWhiz
+def LabWhiz():
 
     type = st.selectbox("Select the type of calculation needed...",[
         "",
@@ -552,4 +552,4 @@ def Labcal():
         st.header("General Dilution Factor")
         gdf()
 if __name__ == '__main__':
-    Labcal()  
+    LabWhiz()  
