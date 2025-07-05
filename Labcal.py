@@ -10,20 +10,23 @@ st.markdown("""
 <img src="https://img.icons8.com/fluency/96/lab-items.png" width="48" style="margin-right:10px; vertical-align: middle;" />
 <span style="font-size: 32px; font-weight: 700;">Labcal</span>  
 <span style="color: #9ca3af;">by Bionika</span>  
-<br><br>
+<br>
 
+<div style="font-size: 19px; font-weight: 700; margin-top: 6px; margin-bottom: 14px;">
+When precision matters, Labcal delivers — no errors, no guesswork.
+</div>
+            
 <div style="font-size: 17px; line-height: 1.6">
-A precision-built wet lab calculator designed for modern biology labs.  
-From molarity to serial dilutions, Labcal simplifies every step with clarity and speed.
+Labcal is built to catch what your eye misses — precise, reliable, and scientifically accurate every single time.<br>
+It meets you where you work — in quiet benches, busy labs, and every place science demands precision.
 </div>
 
 ---
 
 <div style="font-size: 15px; color: #9ca3af;">
-Used by researchers, students, and teams who value speed, accuracy, and sanity in daily workflows.
+Built for minds that value speed, trust precision, and live where mistakes aren’t an option.
 </div>
 """, unsafe_allow_html=True)
-
 
 
 #theme
@@ -148,25 +151,34 @@ def convert_vol(value, from_unit, to_base=True):
     factor = VOLUME_UNITS[from_unit]
     return value * factor if to_base else value / factor
 
+
 #different calculation functions
 def simpledilution():
-    st.info("Use: To dilute a stock solution to a lower concentration directly.Common in buffer prep, reagent dilution, etc.")
-    col1,col2=st.columns(2)
-    
+    st.info("Use: To dilute a stock solution to a lower concentration directly. Common in buffer prep, reagent dilution, etc.")
+    col1, col2 = st.columns(2)
+
     with col1:
-        C1 = st.number_input("Original Concentration (C₁)", min_value=0.0, step=0.1, format="%.4f",help="Its asking for the starting concentration of your solution.")
+        C1_str = st.text_input("Original Concentration (C₁)", placeholder="e.g. 50", key="c1_input")
         C1_unit = st.selectbox("C₁ Unit", list(CONCENTRATION_UNITS))
     with col2:
-        C2 = st.number_input("Target Concentration (C₂)", min_value=0.0, step=0.1, format="%.4f",help="Its asking for Diluted concentration you need for experiments.")
+        C2_str = st.text_input("Target Concentration (C₂)", placeholder="e.g. 10", key="c2_input")
         C2_unit = st.selectbox("C₂ Unit", list(CONCENTRATION_UNITS))
 
-    V2 = st.number_input("Final Volume (V₂)", min_value=0.0, step=0.1, format="%.4f",help="Asking for how much of quantity you want as final solution.")
+    V2_str = st.text_input("Final Volume (V₂)", placeholder="e.g. 100", key="v2_input")
     V2_unit = st.selectbox("V₂ Unit", list(VOLUME_UNITS))
 
-    output_unit = st.selectbox("Output Volume Unit (V₁)", list(VOLUME_UNITS),help="You can change unit of solution you need which is possible in your lab.")
+    output_unit = st.selectbox("Output Volume Unit (V₁)", list(VOLUME_UNITS), help="You can change unit of solution you need which is possible in your lab.")
 
     if st.button("Get needed Volume (V₁)"):
-        if C1 == 0 or C2 == 0 or V2 == 0:
+        try:
+            C1 = float(C1_str)
+            C2 = float(C2_str)
+            V2 = float(V2_str)
+        except (ValueError, TypeError):
+            st.error("Please enter valid numerical values for C₁, C₂, and V₂.")
+            return
+
+        if C1 <= 0 or C2 <= 0 or V2 <= 0:
             st.error("Parameter values must be greater than 0.")
         elif C2 > C1:
             st.error("Target concentration (C₂) cannot exceed original concentration (C₁).")
@@ -185,21 +197,30 @@ def simpledilution():
             st.success(f"Needed Volume (V₁): {V1_converted:.2f} {output_unit}")
             st.caption(f"Pipette {V1_converted:.2f} {output_unit} of {C1:.2f} {C1_unit} stock and dilute to {V2:.2f} {V2_unit} to get {C2:.2f} {C2_unit}.")
 def serialdilution():
-    st.info("Use: When you need very high dilutions (e.g., 1:10000), which are impractical in one step.Common in microbiology and pharmacology.")
-    col1,col2=st.columns(2)
+    st.info("Use: When you need very high dilutions (e.g., 1:10000), which are impractical in one step. Common in microbiology and pharmacology.")
+    col1, col2 = st.columns(2)
     with col1:
-        C1 = st.number_input("Initial Concentration (C₁)", min_value=0.0, step=0.1, format="%.4f",help="Its asking for the starting concentration of your solution.")
+        C1_str = st.text_input("Initial Concentration (C₁)", placeholder="e.g. 100", key="serial_c1")
         C1_unit = st.selectbox("C₁ Unit", list(CONCENTRATION_UNITS))
     with col2:
-        C2 = st.number_input("Desired Final Concentration (C₂)", min_value=0.0, step=0.1, format="%.4f",help="Asking for how much of quantity you want as final solution.")
+        C2_str = st.text_input("Desired Final Concentration (C₂)", placeholder="e.g. 0.01", key="serial_c2")
         C2_unit = st.selectbox("C₂ Unit", list(CONCENTRATION_UNITS))
 
-    dilution_factor = st.number_input("Dilution Ratio per Step (e.g., 1:10 → enter 10)", min_value=1.0, step=1.0)
-
-    volume_stock = st.number_input("Volume taken per Step (µL)", min_value=0.0, step=0.1, format="%.4f")
-    volume_diluent = st.number_input("Diluent Volume per Step (µL)", min_value=0.0, step=0.1, format="%.4f")
+    dilution_factor_str = st.text_input("Dilution Ratio per Step (e.g., 1:10 → enter 10)", placeholder="e.g. 10", key="serial_ratio")
+    volume_stock_str = st.text_input("Volume taken per Step (µL)", placeholder="e.g. 100", key="serial_vstock")
+    volume_diluent_str = st.text_input("Diluent Volume per Step (µL)", placeholder="e.g. 900", key="serial_vdiluent")
 
     if st.button("Calculate number of steps"):
+        try:
+            C1 = float(C1_str)
+            C2 = float(C2_str)
+            dilution_factor = float(dilution_factor_str)
+            volume_stock = float(volume_stock_str)
+            volume_diluent = float(volume_diluent_str)
+        except (ValueError, TypeError):
+            st.error("Please enter valid numerical values in all fields.")
+            return
+
         C1_u = convert_conc(C1, C1_unit)
         C2_u = convert_conc(C2, C2_unit)
 
@@ -218,87 +239,114 @@ def serialdilution():
             st.success(f"You need {steps_needed} serial dilution step(s) to reach ~{actual_final_user_unit:.4f} {C2_unit} from {C1} {C1_unit}")
             st.caption(f"Each step: {volume_stock} µL + {volume_diluent} µL diluent (1:{dilution_factor} dilution)")
 def molarity():
-    st.info("Use: Quickly calculate how much solute is needed to make a solution of desired molarity.Common in: solution prep, reagents, buffers, and media preparation.")
-    molarity=st.number_input("Desired molarity(mol/L)",min_value=0.0, step=0.001, format="%.4f",help="Molarity that you wish to achieve")
-    volume=st.number_input("Enter volume",min_value=0.0, step=0.01, format="%.2f",help="Volume of solution you actually have. ")
-    volume_unit=st.selectbox("Enter the unit of volume",list(VOLUME_UNITS))
-    mw=st.number_input("Enter Molecular weight(g/mol)",min_value=0.0, step=0.001, format="%.4f")
+    st.info("Use: Quickly calculate how much solute is needed to make a solution of desired molarity. Common in: solution prep, reagents, buffers, and media preparation.")
+
+    molarity_str = st.text_input("Desired molarity (mol/L)", placeholder="e.g. 0.1", key="mol_molarity")
+    volume_str = st.text_input("Enter volume", placeholder="e.g. 1000", key="mol_volume")
+    volume_unit = st.selectbox("Enter the unit of volume", list(VOLUME_UNITS))
+    mw_str = st.text_input("Enter Molecular weight (g/mol)", placeholder="e.g. 58.44", key="mol_mw")
 
     if st.button("Calculate required mass"):
-        if molarity==0 or volume==0 or mw==0:
-            st.error("Parameter given must not be zero.\nCheck values again.")
-        else:
-            volume_in_L = volume * VOLUME_UNITS[volume_unit] / 1_000_000  # μL-based to L
-                    # Calculate moles and mass
-            moles = molarity * volume_in_L
-            try:
-                mass = moles * mw  # in grams
-            except Exception as e:
-                st.error(f"Error in molarity calculation: {str(e)}")
-                return
+        try:
+            molarity = float(molarity_str)
+            volume = float(volume_str)
+            mw = float(mw_str)
+        except (ValueError, TypeError):
+            st.error("Please enter valid numerical values.")
+            return
 
+        if molarity == 0 or volume == 0 or mw == 0:
+            st.error("Parameter given must not be zero. Check values again.")
+            return
 
-            unit = "mg" if mass < 1 else "g"
-            mass_out = mass * 1000 if unit == "mg" else mass
+        volume_in_L = volume * VOLUME_UNITS[volume_unit] / 1_000_000  # μL-based to L
+        moles = molarity * volume_in_L
 
-            st.success(f"You need to weigh **{mass_out:.3f} {unit}** of the compound.")
-            st.caption(f"To make {volume:.2f} {volume_unit} of a {molarity:.4f} M solution with MW {mw:.2f} g/mol.")
+        try:
+            mass = moles * mw  # in grams
+        except Exception as e:
+            st.error(f"Error in molarity calculation: {str(e)}")
+            return
+
+        unit = "mg" if mass < 1 else "g"
+        mass_out = mass * 1000 if unit == "mg" else mass
+
+        st.success(f"You need to weigh **{mass_out:.3f} {unit}** of the compound.")
+        st.caption(f"To make {volume:.2f} {volume_unit} of a {molarity:.4f} M solution with MW {mw:.2f} g/mol.")
 def wv():
-    st.info("Use:To prepare a solution where a solid is dissolved in a liquid (e.g., NaCl, glucose).")
-    percent = st.number_input("Enter desired concentration (% w/v)", min_value=0.0, step=0.01, format="%.2f")
-    volume = st.number_input("Enter total volume", min_value=0.0, step=0.1, format="%.2f")
+    st.info("Use: To prepare a solution where a solid is dissolved in a liquid (e.g., NaCl, glucose).")
+
+    percent_str = st.text_input("Enter desired concentration (% w/v)", placeholder="e.g. 5", key="wv_percent")
+    volume_str = st.text_input("Enter total volume", placeholder="e.g. 250", key="wv_volume")
     volume_unit = st.selectbox("Select volume unit", list(VOLUME_UNITS.keys()))  # μL, mL, L
 
     if st.button("Calculate required mass"):
+        try:
+            percent = float(percent_str)
+            volume = float(volume_str)
+        except (ValueError, TypeError):
+            st.error("Please enter valid numerical values.")
+            return
+
         if percent == 0 or volume == 0:
             st.error("Concentration and volume must be greater than zero.")
-        else:
-                    # Convert volume to mL
-            volume_ml = convert_vol(volume, volume_unit, to_base=True) / 1000  # μL to mL
+            return
 
-                    # Calculate required mass in grams
-            mass = (percent * volume_ml) / 100  # g
+        volume_ml = convert_vol(volume, volume_unit, to_base=True) / 1000  # μL to mL
+        mass = (percent * volume_ml) / 100  # g
 
-            unit = "mg" if mass < 1 else "g"
-            mass_out = mass * 1000 if unit == "mg" else mass
+        unit = "mg" if mass < 1 else "g"
+        mass_out = mass * 1000 if unit == "mg" else mass
 
-            st.success(f"You need to weigh **{mass_out:.3f} {unit}** of solute.")
-            st.caption(f"To make {volume:.2f} {volume_unit} of a {percent:.2f}% w/v solution.")
+        st.success(f"You need to weigh **{mass_out:.3f} {unit}** of solute.")
+        st.caption(f"To make {volume:.2f} {volume_unit} of a {percent:.2f}% w/v solution.")
 def vv():
-    st.info("Note:Use for mixing two liquids, like ethanol or acetic acid in water.Example: making 70%" "ethanol = 70 mL ethanol in 100 mL solution.")
-        
-    percent=st.number_input("Enter desired concentration(%v/v)",min_value=0.0,step=0.01,format="%.2f")
-    volume=st.number_input("Enter total solution volume",min_value=0.0,step=0.01,format="%.2f")
-    volumeunit=st.selectbox("Choose volume unit",list(VOLUME_UNITS))
+    st.info("Note: Use for mixing two liquids, like ethanol or acetic acid in water. Example: making 70% ethanol = 70 mL ethanol in 100 mL solution.")
+
+    percent_str = st.text_input("Enter desired concentration (% v/v)", placeholder="e.g. 70", key="vv_percent")
+    volume_str = st.text_input("Enter total solution volume", placeholder="e.g. 100", key="vv_volume")
+    volumeunit = st.selectbox("Choose volume unit", list(VOLUME_UNITS))
 
     if st.button("Calculate required solute volume"):
+        try:
+            percent = float(percent_str)
+            volume = float(volume_str)
+        except (ValueError, TypeError):
+            st.error("Please enter valid numerical values.")
+            return
+
         if percent == 0 or volume == 0:
             st.error("Concentration and volume must be greater than zero.")
-        else:
-            
-            total_volume_mL = convert_vol(volume, volumeunit, to_base=True) / 1000  # μL to mL
+            return
 
-            
-            solute_volume_mL = (percent * total_volume_mL) / 100
+        total_volume_mL = convert_vol(volume, volumeunit, to_base=True) / 1000  # μL to mL
+        solute_volume_mL = (percent * total_volume_mL) / 100
 
-            # Choose best output unit
-            unit = "μL" if solute_volume_mL < 0.001 else "mL"
-            solute_volume_out = solute_volume_mL * 1000 if unit == "μL" else solute_volume_mL
+        unit = "μL" if solute_volume_mL < 0.001 else "mL"
+        solute_volume_out = solute_volume_mL * 1000 if unit == "μL" else solute_volume_mL
 
-            st.success(f"You need **{solute_volume_out:.2f} {unit}** of liquid solute.")
-            st.caption(f"To make {volume:.2f} {volumeunit} of a {percent:.2f}% v/v solution.")
+        st.success(f"You need **{solute_volume_out:.2f} {unit}** of liquid solute.")
+        st.caption(f"To make {volume:.2f} {volumeunit} of a {percent:.2f}% v/v solution.")
 def md():
     st.info("Use:\nDilute a molar solution from a concentrated stock.\nCommon in buffer preparation, titrations, and chemical reactions.")
 
-    M1 = st.number_input("Initial Molarity (M₁)", min_value=0.0, step=0.001, format="%.4f",help="Molarity of solution you actually have.")
-    M2 = st.number_input("Target Molarity (M₂)", min_value=0.0, step=0.001, format="%.4f",help="Molarity of solution you want to achieve.")
+    M1_str = st.text_input("Initial Molarity (M₁)", placeholder="e.g. 1.0", key="md_m1")
+    M2_str = st.text_input("Target Molarity (M₂)", placeholder="e.g. 0.1", key="md_m2")
 
-    V2 = st.number_input("Final Volume (V₂)", min_value=0.0, step=0.01, format="%.4f",help="Amount of solution you want to have with desired molarity.")
+    V2_str = st.text_input("Final Volume (V₂)", placeholder="e.g. 100", key="md_v2")
     V2_unit = st.selectbox("V₂ Unit", list(VOLUME_UNITS.keys()))
 
     output_unit = st.selectbox("Output Volume Unit (V₁)", list(VOLUME_UNITS.keys()))
 
     if st.button("Calculate needed Volume (V₁)"):
+        try:
+            M1 = float(M1_str)
+            M2 = float(M2_str)
+            V2 = float(V2_str)
+        except (ValueError, TypeError):
+            st.error("Please enter valid numerical values.")
+            return
+
         if M1 == 0 or M2 == 0 or V2 == 0:
             st.error("All parameters must be greater than zero.")
         elif M2 > M1:
@@ -310,30 +358,39 @@ def md():
             except Exception as e:
                 st.error(f"Error in molarity dilution: {str(e)}")
                 return
+
             V1_out = convert_vol(V1_uL, output_unit, to_base=False)
 
-            st.success(f"You need to pipette **{V1_out:.2f} {output_unit}** of {M1} M solution.")
+            st.success(f"You need to pipette **{V1_out:.2f} {output_unit}** of {M1:.2f} M solution.")
             st.caption(f"Dilute to {V2:.2f} {V2_unit} to get {M2:.2f} M.")
 def drpdilution():
     st.info("Use:\nDilute nucleic acids or proteins to desired working concentrations.\nCommon in PCR, gel loading, extractions, assays.")
 
-    calc_type = st.radio("Choose what you want to calculate:", ["Dilution Volume (C₁×V₁ = C₂×V₂)", "Mass in Given Volume"],help="Two types of problem arise from wet lab here both types are given.")
+    calc_type = st.radio("Choose what you want to calculate:", ["Dilution Volume (C₁×V₁ = C₂×V₂)", "Mass in Given Volume"], help="Two types of problem arise from wet lab here both types are given.")
 
     if calc_type == "Dilution Volume (C₁×V₁ = C₂×V₂)":
-        col1,col2,col3=st.columns(3)
+        col1, col2, col3 = st.columns(3)
         with col1:
-            C1 = st.number_input("Stock Concentration (C₁)", min_value=0.0, step=0.1, format="%.4f")
+            C1_str = st.text_input("Stock Concentration (C₁)", placeholder="e.g. 100", key="drp_c1")
             C1_unit = st.selectbox("C₁ Unit", list(CONCENTRATION_UNITS.keys()))
         with col2:
-            C2 = st.number_input("Target Concentration (C₂)", min_value=0.0, step=0.1, format="%.4f")
+            C2_str = st.text_input("Target Concentration (C₂)", placeholder="e.g. 10", key="drp_c2")
             C2_unit = st.selectbox("C₂ Unit", list(CONCENTRATION_UNITS.keys()))
         with col3:
-            V2 = st.number_input("Final Volume (V₂)", min_value=0.0, step=0.1, format="%.4f")
+            V2_str = st.text_input("Final Volume (V₂)", placeholder="e.g. 500", key="drp_v2")
             V2_unit = st.selectbox("V₂ Unit", list(VOLUME_UNITS.keys()))
 
         output_unit = st.selectbox("Output Volume Unit (V₁)", list(VOLUME_UNITS.keys()))
 
         if st.button("Calculate Volume (V₁)"):
+            try:
+                C1 = float(C1_str)
+                C2 = float(C2_str)
+                V2 = float(V2_str)
+            except (ValueError, TypeError):
+                st.error("Please enter valid numerical values.")
+                return
+
             if C1 == 0 or C2 == 0 or V2 == 0:
                 st.error("All values must be greater than zero.")
             elif C2 > C1:
@@ -344,25 +401,38 @@ def drpdilution():
                 V2_base = convert_vol(V2, V2_unit)
 
                 try:
-                   V1_uL = (C2_base * V2_base) / C1_base
+                    V1_uL = (C2_base * V2_base) / C1_base
                 except Exception as e:
                     st.error(f"Error in biomolecule dilution: {str(e)}")
                     return
+
                 V1_out = convert_vol(V1_uL, output_unit, to_base=False)
 
-                st.success(f"You need {V1_out:.2f} {output_unit} of {C1} {C1_unit} solution.")
+                st.success(f"You need {V1_out:.2f} {output_unit} of {C1:.2f} {C1_unit} solution.")
                 st.caption(f"Dilute it to {V2:.2f} {V2_unit} to get {C2:.2f} {C2_unit}.")
 
     elif calc_type == "Mass in Given Volume":
-        conc = st.number_input("Concentration", min_value=0.0, step=0.1, format="%.4f")
+        conc_str = st.text_input("Concentration", placeholder="e.g. 50", key="drp_conc")
         conc_unit = st.selectbox("Concentration Unit", list(CONCENTRATION_UNITS.keys()))
 
-        vol = st.number_input("Volume", min_value=0.0, step=0.1, format="%.4f")
+        vol_str = st.text_input("Volume", placeholder="e.g. 20", key="drp_vol")
         vol_unit = st.selectbox("Volume Unit", list(VOLUME_UNITS.keys()))
 
         if st.button("Calculate Mass"):
+            try:
+                conc = float(conc_str)
+                vol = float(vol_str)
+            except (ValueError, TypeError):
+                st.error("Please enter valid numerical values.")
+                return
+
             conc_base = convert_conc(conc, conc_unit)  # ng/μL
             vol_base = convert_vol(vol, vol_unit)      # μL
+
+            if conc_base == 0 or vol_base == 0:
+                st.error("Values given cannot be zero.")
+                return
+
             try:
                 mass_ng = conc_base * vol_base
             except Exception as e:
@@ -384,11 +454,19 @@ def drpdilution():
 def cc():
     st.info("Use:\nEstimate bacterial concentration in original sample after plating.\nCommon in: microbiology, antibiotic testing, fermentation.")
 
-    colonies = st.number_input("Number of Colonies Counted", min_value=0, step=1)
-    dilution_factor = st.number_input("Dilution Factor (e.g., 1:1000 → enter 1000)", min_value=1.0, step=1.0)
-    plated_volume = st.number_input("Volume Plated (in mL)", min_value=0.0001, step=0.0001, format="%.4f")
+    colonies_str = st.text_input("Number of Colonies Counted", placeholder="e.g. 87", key="cc_colonies")
+    dilution_str = st.text_input("Dilution Factor (e.g., 1:1000 → enter 1000)", placeholder="e.g. 1000", key="cc_dilution")
+    plated_vol_str = st.text_input("Volume Plated (in mL)", placeholder="e.g. 0.1", key="cc_volume")
 
     if st.button("Calculate CFU/mL"):
+        try:
+            colonies = int(colonies_str)
+            dilution_factor = float(dilution_str)
+            plated_volume = float(plated_vol_str)
+        except (ValueError, TypeError):
+            st.error("Please enter valid numerical values.")
+            return
+
         if colonies == 0 or plated_volume == 0:
             st.error("Colony count and volume plated must be greater than zero.")
         else:
@@ -397,16 +475,24 @@ def cc():
             except Exception as e:
                 st.error(f"Error in CFU calculation: {str(e)}")
                 return
+
             st.success(f"Estimated concentration: **{cfu_per_mL:.2e} CFU/mL**")
-            st.caption(f"Based on {colonies} colonies at 1:{int(dilution_factor)} dilution and {plated_volume} mL plated.")
+            st.caption(f"Based on {colonies} colonies at 1:{int(dilution_factor)} dilution and {plated_volume:.4f} mL plated.")
 def gdf():
     st.info("Use:\nCalculate how much dilution occurred based on initial volume and final total volume.\nCommon in: buffer prep, enzyme assays, reagent use.")
 
-    stock_volume = st.number_input("Volume of initial stock Used", min_value=0.0001, step=0.1, format="%.4f")
-    final_volume = st.number_input("Final Volume after Dilution", min_value=0.0001, step=0.1, format="%.4f")
-    unit = st.selectbox("Select Unit", list(VOLUME_UNITS.keys()))  # Uses your unified volume unit map
+    stock_volume_str = st.text_input("Volume of initial stock Used", placeholder="e.g. 100", key="gdf_stock")
+    final_volume_str = st.text_input("Final Volume after Dilution", placeholder="e.g. 1000", key="gdf_final")
+    unit = st.selectbox("Select Unit", list(VOLUME_UNITS.keys()))
 
     if st.button("Calculate Dilution Factor"):
+        try:
+            stock_volume = float(stock_volume_str)
+            final_volume = float(final_volume_str)
+        except (ValueError, TypeError):
+            st.error("Please enter valid numerical values.")
+            return
+
         stock_vol_uL = convert_vol(stock_volume, unit)
         final_vol_uL = convert_vol(final_volume, unit)
 
@@ -418,12 +504,14 @@ def gdf():
             except Exception as e:
                 st.error(f"Error in dilution factor calculation: {str(e)}")
                 return
+
             st.success(f"Dilution Factor: **1:{dilution_factor:.2f}**")
             st.caption(f"You diluted {stock_volume:.2f} {unit} up to {final_volume:.2f} {unit}, giving a 1:{dilution_factor:.2f} dilution.")
 
 
 #main webapp Labcal
 def Labcal():
+
     type = st.selectbox("Select the type of calculation needed...",[
         "",
         "Simple dilution",
@@ -463,6 +551,5 @@ def Labcal():
     elif type=="General Dilution Factor":
         st.header("General Dilution Factor")
         gdf()
-
 if __name__ == '__main__':
     Labcal()  
