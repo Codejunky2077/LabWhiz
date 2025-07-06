@@ -218,7 +218,7 @@ def simpledilution():
                 st.caption(f"Pipette {V1_converted:.2f} {output_unit} of {C1:.2f} {C1_unit} stock and dilute to {V2:.2f} {V2_unit} to get {C2:.2f} {C2_unit}.")
 
             except Exception as e:
-                st.error(f"Error in dilution calculation: {str(e)}")
+                st.error(f"Error in dilution calculation please use numericals only.")
 def serialdilution():
     st.info("Use: When you need very high dilutions (e.g., 1:10000), which are impractical in one step. Common in microbiology and pharmacology.")
     
@@ -273,7 +273,7 @@ def serialdilution():
         except ValueError:
             st.error("Please enter valid numerical values in all fields.")
         except Exception as e:
-            st.error(f"Error in serial dilution: {str(e)}")
+            st.error(f"Error in serial dilution please use numericals only.")
 def molarity():
     st.info("Use: Quickly calculate how much solute is needed to make a solution of desired molarity. Common in: solution prep, reagents, buffers, and media preparation.")
 
@@ -308,7 +308,7 @@ def molarity():
             st.session_state.LabWhiz_history = st.session_state.LabWhiz_history[:5]
 
         except Exception as e:
-            st.error(f"Error in molarity calculation: {str(e)}")
+            st.error(f"Error in molarity calculation please use numericals only.")
 def wv():
     st.info("Use: To prepare a solution where a solid is dissolved in a liquid (e.g., NaCl, glucose).")
 
@@ -352,7 +352,7 @@ def wv():
             st.session_state.LabWhiz_history = st.session_state.LabWhiz_history[:5]
 
         except Exception as e:
-            st.error(f"Error in w/v calculation: {str(e)}")
+            st.error(f"Error in w/v calculation please use numericals only.")
 def vv():
     st.info("Note: Use for mixing two liquids, like ethanol or acetic acid in water. Example: making 70% ethanol = 70 mL ethanol in 100 mL solution.")
 
@@ -395,7 +395,7 @@ def vv():
             st.session_state.LabWhiz_history = st.session_state.LabWhiz_history[:5]
 
         except Exception as e:
-            st.error(f"Error in v/v calculation: {str(e)}")
+            st.error(f"Error in v/v calculation please use numericals only.")
 def md():
     st.info("Use:\nDilute a molar solution from a concentrated stock.\nCommon in buffer preparation, titrations, and chemical reactions.")
 
@@ -434,7 +434,7 @@ def md():
             st.session_state.LabWhiz_history = st.session_state.LabWhiz_history[:5]
 
         except Exception as e:
-            st.error(f"Error in molarity dilution: {str(e)}")
+            st.error(f"Error in molarity dilution please use numericals only.")
 def drpdilution():
     st.info("Use:\nDilute nucleic acids or proteins to desired working concentrations.\nCommon in PCR, gel loading, extractions, assays.")
     calc_type = st.radio("Choose what you want to calculate:", ["Dilution Volume (C₁×V₁ = C₂×V₂)", "Mass in Given Volume"], help="Two types of problem arise from wet lab here both types are given.")
@@ -482,7 +482,7 @@ def drpdilution():
                 st.session_state.LabWhiz_history = st.session_state.LabWhiz_history[:5]
 
             except Exception as e:
-                st.error(f"Error in biomolecule dilution: {str(e)}")
+                st.error(f"Error in biomolecule dilution please use numericals only.")
 
     elif calc_type == "Mass in Given Volume":
         conc_str = st.text_input("Concentration", placeholder="e.g. 50", key="drp_conc")
@@ -523,7 +523,7 @@ def drpdilution():
                 st.session_state.LabWhiz_history = st.session_state.LabWhiz_history[:5]
 
             except Exception as e:
-                st.error(f"Error in mass calculation: {str(e)}")
+                st.error(f"Error in mass calculation please use numericals only.")
 def cc():
     st.info("Use:\nEstimate bacterial concentration in original sample after plating.\nCommon in: microbiology, antibiotic testing, fermentation.")
 
@@ -551,7 +551,7 @@ def cc():
             st.session_state.LabWhiz_history = st.session_state.LabWhiz_history[:5]
 
         except Exception as e:
-            st.error(f"Error in CFU calculation: {str(e)}")
+            st.error(f"Error in CFU calculation please use numericals only.")
 def gdf():
     st.info("Use:\nCalculate how much dilution occurred based on initial volume and final total volume.\nCommon in: buffer prep, enzyme assays, reagent use.")
 
@@ -590,7 +590,7 @@ def gdf():
         except (ValueError, TypeError):
             st.error("Please enter valid numerical values.")
         except Exception as e:
-            st.error(f"Error in dilution factor calculation: {str(e)}")
+            st.error(f"Error in dilution factor calculation please use numericals only.")
 
 
 #main webapp LabWhiz
@@ -675,19 +675,43 @@ if __name__ == '__main__':
     Game()
     badge_info = get_badge(st.session_state.streak)
 
-    with st.sidebar.expander("🧾 Recent Calculations", expanded=True):
+    with st.sidebar.expander("🧾 Recent Calculations", expanded=False):
         if st.session_state.LabWhiz_history:
             for item in st.session_state.LabWhiz_history:
                 st.markdown(f"- {item}")
         else:
             st.caption("No calculations yet.")
-    with st.sidebar.expander("💬 Send Feedback"):
+    with st.sidebar.expander("💬 Send Feedback",expanded=False):
         st.markdown("""
         We'd love your feedback on LabWhiz — bug reports, feature requests, or just thoughts.
         👉 [Click here to open the feedback form](https://forms.gle/mBd51Fpz4Ly4tbUE6)  
         📝 Takes less than a minute!
         """)
-        
+    with st.sidebar.expander("📤 Share LabWhiz", expanded=False):
+        st.markdown("""
+        <button onclick="navigator.share({
+            title: 'LabWhiz',
+            text: 'Try LabWhiz – the fastest wet lab calculator!',
+            url: window.location.href})"
+        style="background-color:#2e7d32;
+               color:white;
+               padding:0.5rem 1rem;
+               border:none;
+               border-radius:8px;
+               font-size:16px;
+               cursor:pointer;
+               width:100%;">
+            📤 Share LabWhiz
+            </button>""", unsafe_allow_html=True)
+
+    st.markdown("""
+        <br><small>Or share manually:</small><br>
+        - [WhatsApp](https://api.whatsapp.com/send?text=Try%20LabWhiz%20https://labwhiz.streamlit.app/)<br>
+        - [Twitter](https://twitter.com/intent/tweet?text=Try%20LabWhiz%20https://labwhiz.streamlit.app/)<br>
+        - [LinkedIn](https://www.linkedin.com/sharing/share-offsite/?url=https://labwhiz.streamlit.app/)
+    """, unsafe_allow_html=True)
+
+
 
 
     # 🎯 Show streak in UI
