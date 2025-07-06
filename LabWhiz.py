@@ -560,7 +560,7 @@ def gdf():
 #main webapp LabWhiz
 def Game():
     BADGE_TIERS = {
-        1: ("🧪 Day 1 — Welcome!", "Beaker Beginner"),
+        1: ("🧪 Day 1 — Welcome!", "Beginner"),
         3: ("⚗️ Day 3 — Getting Cookin’", "Pipette Pro"),
         5: ("🧫 Day 5 — On Fire", "Buffer Beast"),
         10: ("🧬 Day 10 — You're a Legend", "LabWhiz Legend"),
@@ -657,6 +657,6 @@ if __name__ == '__main__':
         st.info(f"{emoji} **{title}** unlocked!")
 
     st.markdown("✅ Keep your streak going by using LabWhiz daily!")
-    st.balloons()
+
 
     LabWhiz()  
