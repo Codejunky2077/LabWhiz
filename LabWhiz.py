@@ -216,6 +216,7 @@ def simpledilution():
                 st.error(f"Error in dilution calculation: {str(e)}")
 def serialdilution():
     st.info("Use: When you need very high dilutions (e.g., 1:10000), which are impractical in one step. Common in microbiology and pharmacology.")
+    
     col1, col2 = st.columns(2)
     with col1:
         C1_str = st.text_input("Initial Concentration (C₁)", placeholder="e.g. 100", key="serial_c1")
@@ -230,37 +231,44 @@ def serialdilution():
 
     if st.button("🚀Calculate number of steps"):
         try:
+            # Parse and validate inputs
             C1 = float(C1_str)
             C2 = float(C2_str)
             dilution_factor = float(dilution_factor_str)
             volume_stock = float(volume_stock_str)
             volume_diluent = float(volume_diluent_str)
-        except (ValueError, TypeError):
-            st.error("Please enter valid numerical values in all fields.")
-            return
 
-        C1_u = convert_conc(C1, C1_unit)
-        C2_u = convert_conc(C2, C2_unit)
+            if any(x <= 0 for x in [C1, C2, dilution_factor, volume_stock, volume_diluent]):
+                st.error("All inputs must be greater than zero.")
+                return
 
-        if C2_u >= C1_u:
-            st.error("Desired concentration must be lower than starting concentration.")
-        else:
+            C1_u = convert_conc(C1, C1_unit)
+            C2_u = convert_conc(C2, C2_unit)
+
+            if C2_u >= C1_u:
+                st.error("Desired concentration must be lower than starting concentration.")
+                return
+
             total_dilution = C1_u / C2_u
-            try:
-                steps_needed = math.ceil(math.log(total_dilution, dilution_factor))
-                actual_final = C1_u / (dilution_factor ** steps_needed)
-                actual_final_user_unit = convert_conc(actual_final, C2_unit, to_base=False)
+            epsilon = 1e-9  # Prevent floating point mismatch
+            steps_needed = math.ceil(math.log(total_dilution + epsilon, dilution_factor))
 
-                # Save result to history first
-                result_text = f"Serial Dilution\n C1={C1:.2f} {C1_unit} → C2={actual_final_user_unit:.4f} {C2_unit} in {steps_needed} steps (1:{dilution_factor} each)"
-                st.session_state.LabWhiz_history.insert(0, result_text)
-                st.session_state.LabWhiz_history = st.session_state.LabWhiz_history[:5]
+            # Calculate final actual concentration
+            actual_final = C1_u / (dilution_factor ** steps_needed)
+            actual_final_user_unit = convert_conc(actual_final, C2_unit, to_base=False)
 
-                st.success(f"✅You need {steps_needed} serial dilution step(s) to reach ~{actual_final_user_unit:.4f} {C2_unit} from {C1} {C1_unit}")
-                st.caption(f"Each step: {volume_stock} µL + {volume_diluent} µL diluent (1:{dilution_factor} dilution)")
+            # Save result to history first
+            result_text = f"Serial Dilution\n C1={C1:.2f} {C1_unit} → C2≈{actual_final_user_unit:.4f} {C2_unit} in {steps_needed} steps (1:{dilution_factor} each)"
+            st.session_state.LabWhiz_history.insert(0, result_text)
+            st.session_state.LabWhiz_history = st.session_state.LabWhiz_history[:5]
 
-            except Exception as e:
-                st.error(f"Error in serial dilution: {str(e)}")
+            st.success(f"✅You need {steps_needed} serial dilution step(s) to reach ~{actual_final_user_unit:.4f} {C2_unit} from {C1:.2f} {C1_unit}")
+            st.caption(f"Each step: {volume_stock:.2f} µL + {volume_diluent:.2f} µL diluent (1:{dilution_factor:.1f} dilution)")
+
+        except ValueError:
+            st.error("Please enter valid numerical values in all fields.")
+        except Exception as e:
+            st.error(f"Error in serial dilution: {str(e)}")
 def molarity():
     st.info("Use: Quickly calculate how much solute is needed to make a solution of desired molarity. Common in: solution prep, reagents, buffers, and media preparation.")
 
@@ -299,8 +307,6 @@ def molarity():
 def wv():
     st.info("Use: To prepare a solution where a solid is dissolved in a liquid (e.g., NaCl, glucose).")
 
-
-
     percent_str = st.text_input("Enter desired concentration (% w/v)", placeholder="e.g. 5", key="wv_percent")
     volume_str = st.text_input("Enter total volume", placeholder="e.g. 250", key="wv_volume")
     volume_unit = st.selectbox("Select volume unit", list(VOLUME_UNITS.keys()))  # μL, mL, L
@@ -314,11 +320,23 @@ def wv():
                 st.error("Concentration and volume must be greater than zero.")
                 return
 
-            volume_ml = convert_vol(volume, volume_unit, to_base=True) / 1000  # μL to mL
-            mass = (percent * volume_ml) / 100  # g
+            # ✅ Convert volume to mL safely (assuming convert_vol returns µL)
+            volume_uL = convert_vol(volume, volume_unit, to_base=True)  # e.g., 250 mL → 250,000 µL
+            volume_mL = volume_uL / 1000  # µL → mL
 
-            unit = "mg" if mass < 1 else "g"
-            mass_out = mass * 1000 if unit == "mg" else mass
+            # ✅ Calculate mass in grams
+            mass_g = (percent / 100) * volume_mL
+
+            # ✅ Format output unit smartly
+            if mass_g >= 1:
+                mass_out = mass_g
+                unit = "g"
+            elif mass_g >= 0.001:
+                mass_out = mass_g * 1000
+                unit = "mg"
+            else:
+                mass_out = mass_g * 1_000_000
+                unit = "µg"
 
             st.success(f"✅You need to weigh **{mass_out:.3f} {unit}** of solute.")
             st.caption(f"To make {volume:.2f} {volume_unit} of a {percent:.2f}% w/v solution.")
@@ -346,11 +364,22 @@ def vv():
                 st.error("Concentration and volume must be greater than zero.")
                 return
 
-            total_volume_mL = convert_vol(volume, volumeunit, to_base=True) / 1000  # μL to mL
-            solute_volume_mL = (percent * total_volume_mL) / 100
+            # Convert input volume to µL
+            total_volume_uL = convert_vol(volume, volumeunit, to_base=True)
 
-            unit = "μL" if solute_volume_mL < 0.001 else "mL"
-            solute_volume_out = solute_volume_mL * 1000 if unit == "μL" else solute_volume_mL
+            # Calculate solute volume in µL
+            solute_volume_uL = (percent / 100) * total_volume_uL
+
+            # Decide best output unit
+            if solute_volume_uL >= 1_000_000:
+                solute_volume_out = solute_volume_uL / 1_000_000
+                unit = "L"
+            elif solute_volume_uL >= 1000:
+                solute_volume_out = solute_volume_uL / 1000
+                unit = "mL"
+            else:
+                solute_volume_out = solute_volume_uL
+                unit = "μL"
 
             st.success(f"✅You need **{solute_volume_out:.2f} {unit}** of liquid solute.")
             st.caption(f"To make {volume:.2f} {volumeunit} of a {percent:.2f}% v/v solution.")
@@ -654,6 +683,7 @@ if __name__ == '__main__':
         📝 Takes less than a minute!
         """)
         
+
 
     # 🎯 Show streak in UI
     st.markdown("---")
