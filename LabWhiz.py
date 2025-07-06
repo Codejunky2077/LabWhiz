@@ -12,7 +12,7 @@ if st.session_state.rerun_flag:
     st.session_state.rerun_flag = False
     st.experimental_rerun()
 #Tab appearance
-st.set_page_config(page_title="LabWhiz by Bionika", page_icon=Image.open("tab_logo.png"), layout="wide")
+st.set_page_config(page_title="LabWhiz by Bionika", page_icon=Image.open("Bionika_tablogo.png"), layout="wide")
 
 #css inject for appearance
 #text
