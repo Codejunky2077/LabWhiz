@@ -675,6 +675,15 @@ if __name__ == '__main__':
     Game()
     badge_info = get_badge(st.session_state.streak)
 
+    with st.sidebar.expander("📤 Share LabWhiz", expanded=False):
+        st.markdown("""
+        <br><small>Share with others:</small><br>
+        - [WhatsApp](https://api.whatsapp.com/send?text=Try%20LabWhiz%20https://labwhiz.streamlit.app/)<br>
+        - [🕊️X](https://twitter.com/intent/tweet?text=Try%20LabWhiz%20https://labwhiz.streamlit.app/)<br>
+        - [💼LinkedIn](https://www.linkedin.com/sharing/share-offsite/?url=https://labwhiz.streamlit.app/)
+        - [📨 Email](mailto:?subject=Try%20LabWhiz%20%E2%80%94%20Fastest%20Lab%20Calculator&body=Check%20out%20LabWhiz:%20https://labwhiz.streamlit.app/)""", unsafe_allow_html=True)
+
+
     with st.sidebar.expander("🧾 Recent Calculations", expanded=False):
         if st.session_state.LabWhiz_history:
             for item in st.session_state.LabWhiz_history:
@@ -687,14 +696,6 @@ if __name__ == '__main__':
         👉 [Click here to open the feedback form](https://forms.gle/mBd51Fpz4Ly4tbUE6)  
         📝 Takes less than a minute!
         """)
-    with st.sidebar.expander("📤 Share LabWhiz", expanded=False):
-        st.markdown("""
-        <br><small>Share with others:</small><br>
-        - [WhatsApp](https://api.whatsapp.com/send?text=Try%20LabWhiz%20https://labwhiz.streamlit.app/)<br>
-        - [🕊️X](https://twitter.com/intent/tweet?text=Try%20LabWhiz%20https://labwhiz.streamlit.app/)<br>
-        - [💼LinkedIn](https://www.linkedin.com/sharing/share-offsite/?url=https://labwhiz.streamlit.app/)
-        - [📨 Email](mailto:?subject=Try%20LabWhiz%20%E2%80%94%20Fastest%20Lab%20Calculator&body=Check%20out%20LabWhiz:%20https://labwhiz.streamlit.app/)""", unsafe_allow_html=True)
-
 
 
     # 🎯 Show streak in UI
