@@ -7,6 +7,16 @@ import streamlit.components.v1 as components
 st.markdown("""
             <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "00b3ac8e9b2f42feba7acd4d35d5969a"}'></script><!-- End Cloudflare Web Analytics -->
             """, unsafe_allow_html=True)
+#hiding tool bar
+st.markdown("""
+    <style>
+    /* Hide Streamlit's default top menu and footer */
+    header {visibility: hidden;}
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    </style>
+""", unsafe_allow_html=True)
+
 
 
 if "LabWhiz_history" not in st.session_state:
