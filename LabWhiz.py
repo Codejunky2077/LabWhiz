@@ -2,6 +2,8 @@ import streamlit as st
 import math
 from PIL import Image
 import datetime
+import streamlit.components.v1 as components
+
 if "LabWhiz_history" not in st.session_state:
     st.session_state.LabWhiz_history = []
 if "rerun_flag" not in st.session_state:
@@ -582,7 +584,7 @@ def Game():
 
 def get_badge(streak):
     BADGE_TIERS = {
-        1: ("🧪 Day 1 — Welcome!", "Beginner"),
+        1: ("🧪 Day 1 — Welcome!", "Beginner LabWhizard"),
         3: ("⚗️ Day 3 — Getting Cookin’", "Pipette Pro"),
         5: ("🧫 Day 5 — On Fire", "Buffer Beast"),
         10: ("🧬 Day 10 — You're a Legend", "LabWhiz Legend"),
@@ -645,7 +647,13 @@ if __name__ == '__main__':
                 st.markdown(f"- {item}")
         else:
             st.caption("No calculations yet.")
-
+    with st.sidebar.expander("💬 Send Feedback"):
+        st.markdown("""
+        We'd love your feedback on LabWhiz — bug reports, feature requests, or just thoughts.
+        👉 [Click here to open the feedback form](https://forms.gle/mBd51Fpz4Ly4tbUE6)  
+        📝 Takes less than a minute!
+        """)
+        
 
     # 🎯 Show streak in UI
     st.markdown("---")
