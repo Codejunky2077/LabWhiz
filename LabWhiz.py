@@ -703,13 +703,11 @@ if __name__ == '__main__':
                width:100%;">
             📤 Share LabWhiz
             </button>""", unsafe_allow_html=True)
-
-    st.markdown("""
+        st.markdown("""
         <br><small>Or share manually:</small><br>
         - [WhatsApp](https://api.whatsapp.com/send?text=Try%20LabWhiz%20https://labwhiz.streamlit.app/)<br>
         - [Twitter](https://twitter.com/intent/tweet?text=Try%20LabWhiz%20https://labwhiz.streamlit.app/)<br>
-        - [LinkedIn](https://www.linkedin.com/sharing/share-offsite/?url=https://labwhiz.streamlit.app/)
-    """, unsafe_allow_html=True)
+        - [LinkedIn](https://www.linkedin.com/sharing/share-offsite/?url=https://labwhiz.streamlit.app/)""", unsafe_allow_html=True)
 
 
 
