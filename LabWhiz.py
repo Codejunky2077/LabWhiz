@@ -689,26 +689,11 @@ if __name__ == '__main__':
         """)
     with st.sidebar.expander("📤 Share LabWhiz", expanded=False):
         st.markdown("""
-        <button onclick="navigator.share({
-            title: 'LabWhiz',
-            text: 'Try LabWhiz – the fastest wet lab calculator!',
-            url: window.location.href})"
-        style="background-color:#2e7d32;
-               color:white;
-               padding:0.5rem 1rem;
-               border:none;
-               border-radius:8px;
-               font-size:16px;
-               cursor:pointer;
-               width:100%;">
-            📤 Share LabWhiz
-            </button>""", unsafe_allow_html=True)
-        st.markdown("""
-        <br><small>Or share manually:</small><br>
+        <br><small>Share with others:</small><br>
         - [WhatsApp](https://api.whatsapp.com/send?text=Try%20LabWhiz%20https://labwhiz.streamlit.app/)<br>
-        - [Twitter](https://twitter.com/intent/tweet?text=Try%20LabWhiz%20https://labwhiz.streamlit.app/)<br>
-        - [LinkedIn](https://www.linkedin.com/sharing/share-offsite/?url=https://labwhiz.streamlit.app/)""", unsafe_allow_html=True)
-
+        - [🕊️X](https://twitter.com/intent/tweet?text=Try%20LabWhiz%20https://labwhiz.streamlit.app/)<br>
+        - [💼LinkedIn](https://www.linkedin.com/sharing/share-offsite/?url=https://labwhiz.streamlit.app/)
+        - [📨 Email](mailto:?subject=Try%20LabWhiz%20%E2%80%94%20Fastest%20Lab%20Calculator&body=Check%20out%20LabWhiz:%20https://labwhiz.streamlit.app/)""", unsafe_allow_html=True)
 
 
 
