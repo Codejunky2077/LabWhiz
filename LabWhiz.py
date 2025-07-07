@@ -593,43 +593,6 @@ def gdf():
 
 
 #main webapp LabWhiz
-def Game():
-    BADGE_TIERS = {
-        1: ("🧪 Day 1 — Welcome!", "Beginner"),
-        3: ("⚗️ Day 3 — Getting Cookin’", "Pipette Pro"),
-        5: ("🧫 Day 5 — On Fire", "Buffer Beast"),
-        10: ("🧬 Day 10 — You're a Legend", "LabWhiz Legend"),
-        30: ("🧠 Day 30 — Certified Wizard", "Protocol Sage"),
-        }
-    
-    today = datetime.date.today()
-    if "last_used_date" not in st.session_state:
-        st.session_state.last_used_date = today
-        st.session_state.streak = 1
-    elif today > st.session_state.last_used_date:
-        days_diff = (today - st.session_state.last_used_date).days
-        if days_diff == 1:
-            st.session_state.streak += 1
-        elif days_diff > 1:
-            st.session_state.streak = 1  # streak broken
-        st.session_state.last_used_date = today
-
-
-def get_badge(streak):
-    BADGE_TIERS = {
-        1: ("🧪 Day 1 — Welcome!", "Beginner LabWhizard"),
-        3: ("⚗️ Day 3 — Getting Cookin’", "Pipette Pro"),
-        5: ("🧫 Day 5 — On Fire", "Buffer Beast"),
-        10: ("🧬 Day 10 — You're a Legend", "LabWhiz Legend"),
-        30: ("🧠 Day 30 — Certified Wizard", "Protocol Sage"),
-        }
-    applicable = [days for days in BADGE_TIERS if streak >= days]
-    if not applicable:
-        return None
-    max_achieved = max(applicable)
-    return BADGE_TIERS[max_achieved]
-
-
 def LabWhiz():
     type = st.selectbox("Select the type of calculation needed...",[
         "",
@@ -671,9 +634,7 @@ def LabWhiz():
         st.header("General Dilution Factor")
         gdf()
 if __name__ == '__main__':
-    Game()
-    badge_info = get_badge(st.session_state.streak)
-
+     #sidebar ui
     with st.sidebar.expander("📤 Share LabWhiz", expanded=False):
         st.markdown("""
         <br><small>Share with others:</small><br>
@@ -681,8 +642,6 @@ if __name__ == '__main__':
         - [🕊️X](https://twitter.com/intent/tweet?text=Try%20LabWhiz%20https://labwhiz.streamlit.app/)<br>
         - [💼LinkedIn](https://www.linkedin.com/sharing/share-offsite/?url=https://labwhiz.streamlit.app/)
         - [📨 Email](mailto:?subject=Try%20LabWhiz%20%E2%80%94%20Fastest%20Lab%20Calculator&body=Check%20out%20LabWhiz:%20https://labwhiz.streamlit.app/)""", unsafe_allow_html=True)
-
-
     with st.sidebar.expander("🧾 Recent Calculations", expanded=False):
         if st.session_state.LabWhiz_history:
             for item in st.session_state.LabWhiz_history:
@@ -695,18 +654,4 @@ if __name__ == '__main__':
         👉 [Click here to open the feedback form](https://forms.gle/mBd51Fpz4Ly4tbUE6)  
         📝 Takes less than a minute!
         """)
-
-
-    # 🎯 Show streak in UI
-    st.markdown("---")
-    st.subheader("🎯 Your LabWhiz Streak")
-    st.success(f"🔥 `{st.session_state.streak}`-Day Streak")
-
-    if badge_info:
-        emoji, title = badge_info
-        st.info(f"{emoji} **{title}** unlocked!")
-
-    st.markdown("✅ Keep your streak going by using LabWhiz daily!")
-
-
     LabWhiz()  
