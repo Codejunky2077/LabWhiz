@@ -3,6 +3,29 @@ import math
 from PIL import Image
 import datetime
 import streamlit.components.v1 as components
+
+#giving tips 
+import random
+
+insights = [
+    "📏 Always double-check units — μL and mL mistakes ruin entire preps.",
+    "🧪 Mix solutions thoroughly — don’t assume it’s homogeneous after adding solute.",
+    "🔬 Use dedicated tips and buffers for RNA work — RNases are everywhere.",
+    "🧊 Keep enzymes on ice — activity drops fast even at room temp.",
+    "🎯 Don’t trust pH alone — always verify ionic strength in sensitive buffers.",
+    "💡 Label with date and initials — mystery tubes cost time and samples.",
+    "🚿 Wipe pipettes regularly — cross-contamination is sneakier than you think.",
+    "🧫 Vortex only when protocol says so — not all reagents tolerate agitation.",
+    "🧯 Never microwave sealed tubes — pressure buildup can cause explosions.",
+    "🧰 Pre-weigh chemicals over paper or boat — balances are sensitive to spills.",
+    "📅 Make fresh working dilutions — avoid reusing week-old diluted reagents.",
+    "👁️ Scan protocols fully before starting — assumptions = errors.",
+    "♻️ Calibrate pipettes if they feel ‘off’ — accuracy degrades silently.",]
+
+lab_wisdom = random.choice(insights)
+
+
+
 #analytics
 st.markdown("""
             <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "00b3ac8e9b2f42feba7acd4d35d5969a"}'></script><!-- End Cloudflare Web Analytics -->
@@ -22,7 +45,7 @@ st.set_page_config(page_title="LabWhiz by Bionika", page_icon=Image.open("Bionik
 
 #css inject for appearance
 #text
-st.markdown("""
+st.markdown(f"""
 <img src="https://img.icons8.com/fluency/96/lab-items.png" width="48" style="margin-right:10px; vertical-align: middle;" />
 <span style="font-size: 32px; font-weight: 700;">LabWhiz</span>  
 <span style="color: #9ca3af;">by Bionika</span>  
@@ -38,9 +61,9 @@ It meets you where you work — in quiet benches, busy labs, and every place sci
 </div>
 
 ---
-
-<div style="font-size: 15px; color: #9ca3af;">
-Built for minds that value speed, trust precision, and live where mistakes aren’t an option.
+            
+<div style="font-size: 15px; color: #00c09a;">
+🧠 <b>Lab Wisdom:</b> {lab_wisdom}
 </div>
 """, unsafe_allow_html=True)
 
