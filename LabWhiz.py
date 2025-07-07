@@ -52,7 +52,7 @@ st.markdown(f"""
 <br>
 
 <div style="font-size: 19px; font-weight: 700; margin-top: 6px; margin-bottom: 14px;">
-When precision matters, LabWhiz delivers — no errors, no guesswork.
+Fast lab calculations on your device — when precision matters, LabWhiz delivers.
 </div>
             
 <div style="font-size: 17px; line-height: 1.6">
