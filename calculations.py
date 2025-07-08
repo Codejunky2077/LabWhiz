@@ -1,7 +1,7 @@
 import streamlit as st
 import math
 from unit import CONCENTRATION_UNITS,VOLUME_UNITS,convert_vol,convert_conc
-
+from Molarmass import compoundmass
 #different calculation functions
 def simpledilution():
     st.info("Use: To dilute a stock solution to a lower concentration directly. Common in buffer prep, reagent dilution, etc.")
@@ -49,6 +49,7 @@ def simpledilution():
 
                 st.success(f"✅ Needed Volume (V₁): {V1_converted:.2f} {output_unit}")
                 st.caption(f"Pipette {V1_converted:.2f} {output_unit} of {C1:.2f} {C1_unit} stock and dilute to {V2:.2f} {V2_unit} to get {C2:.2f} {C2_unit}.")
+                st.markdown(r"**Formula:** $V_1 = \dfrac{C_2 \times V_2}{C_1}$")
 
             except Exception as e:
                 st.error(f"Error in dilution calculation please use numericals only.")
@@ -102,18 +103,23 @@ def serialdilution():
 
             st.success(f"✅You need {steps_needed} serial dilution step(s) to reach ~{actual_final_user_unit:.4f} {C2_unit} from {C1:.2f} {C1_unit}")
             st.caption(f"Each step: {volume_stock:.2f} µL + {volume_diluent:.2f} µL diluent (1:{dilution_factor:.1f} dilution)")
+            st.markdown(r"**Formula:**$\text{Steps} = \left\lceil \dfrac{\log(C_1 / C_2)}{\log(\text{Dilution Factor})} \right\rceil$")
 
         except ValueError:
             st.error("Please enter valid numerical values in all fields.")
         except Exception as e:
-            st.error(f"Error in serial dilution please use numericals only.")
+            st.error("Error in serial dilution please use numericals only.")
 def molarity():
     st.info("Use: Quickly calculate how much solute is needed to make a solution of desired molarity. Common in: solution prep, reagents, buffers, and media preparation.")
 
     molarity_str = st.text_input("Desired molarity (mol/L)", placeholder="e.g. 0.1", key="mol_molarity")
     volume_str = st.text_input("Enter volume", placeholder="e.g. 1000", key="mol_volume")
     volume_unit = st.selectbox("Enter the unit of volume", list(VOLUME_UNITS))
-    mw_str = st.text_input("Enter Molecular weight (g/mol)", placeholder="e.g. 58.44", key="mol_mw")
+    compound = st.selectbox("Choose compound to enter Molecular weight(g/mol)", list(compoundmass.keys()), index=0)
+    if compound !="Custom":
+        mw_str=compoundmass[compound]
+    else:
+        mw_str = st.text_input("Enter Molecular weight (g/mol)", placeholder="e.g. 58.44", key="mol_mw")
 
     if st.button("🎯Calculate required mass"):
         try:
@@ -134,6 +140,7 @@ def molarity():
 
             st.success(f"✅You need to weigh **{mass_out:.3f} {unit}** of the compound.")
             st.caption(f"To make {volume:.2f} {volume_unit} of a {molarity:.4f} M solution with MW {mw:.2f} g/mol.")
+            st.markdown(r"**Formula:**$ M = \dfrac{\text{moles}}{\text{liters of solution}}$")
 
             # Add to history
             result_text = f"Molarity={molarity:.4f} M × Vol={volume:.2f} {volume_unit} with g/mol={mw:.2f} → {mass_out:.3f} {unit}"
@@ -178,6 +185,7 @@ def wv():
 
             st.success(f"✅You need to weigh **{mass_out:.3f} {unit}** of solute.")
             st.caption(f"To make {volume:.2f} {volume_unit} of a {percent:.2f}% w/v solution.")
+            st.markdown(r"**Formula:** $\text{Mass (g)} = \dfrac{\%\ \text{w/v} \times \text{Volume (mL)}}{100}$")
 
             # Add to history
             result_text = f"W/V\n {percent:.2f}% in Vol={volume:.2f} {volume_unit} → Mass={mass_out:.3f} {unit}"
@@ -221,6 +229,7 @@ def vv():
 
             st.success(f"✅You need **{solute_volume_out:.2f} {unit}** of liquid solute.")
             st.caption(f"To make {volume:.2f} {volumeunit} of a {percent:.2f}% v/v solution.")
+            st.markdown(r"**Formula:** $\text{Solute Volume} = \dfrac{\%\ \text{v/v} \times \text{Total Volume}}{100}$")
 
             # Add to history
             result_text = f"v/v\n {percent:.2f}% in Vol={volume:.2f} {volumeunit} → soluteVol={solute_volume_out:.2f} {unit}"
@@ -260,6 +269,7 @@ def md():
 
             st.success(f"✅You need to pipette **{V1_out:.2f} {output_unit}** of {M1:.2f} M solution.")
             st.caption(f"Dilute to {V2:.2f} {V2_unit} to get {M2:.2f} M.")
+            st.markdown(r"**Formula:**$ V_1 = \dfrac{M_2 \times V_2}{M_1}$")
 
             # Add to history
             result_text = f"Molarity Dilution\n M1={M1:.2f} M → M2={M2:.2f} M in V2={V2:.2f} {V2_unit} → need V1={V1_out:.2f} {output_unit}"
@@ -268,7 +278,7 @@ def md():
 
         except Exception as e:
             st.error(f"Error in molarity dilution please use numericals only.")
-def drpdilution():
+def Biomolecule_Dilution():
     st.info("Use:\nDilute nucleic acids or proteins to desired working concentrations.\nCommon in PCR, gel loading, extractions, assays.")
     calc_type = st.radio("Choose what you want to calculate:", ["Dilution Volume (C₁×V₁ = C₂×V₂)", "Mass in Given Volume"], help="Two types of problem arise from wet lab here both types are given.")
 
@@ -309,6 +319,8 @@ def drpdilution():
 
                 st.success(f"✅You need {V1_out:.2f} {output_unit} of {C1:.2f} {C1_unit} solution.")
                 st.caption(f"Dilute it to {V2:.2f} {V2_unit} to get {C2:.2f} {C2_unit}.")
+                st.markdown(r"**Formula:**$ V_1 = \dfrac{C_2 \times V_2}{C_1}$")
+
 
                 result_text = f"DRP Dilution\n C1={C1:.2f} {C1_unit} → C2={C2:.2f} {C2_unit} in V2={V2:.2f} {V2_unit} → need V1={V1_out:.2f} {output_unit}"
                 st.session_state.LabWhiz_history.insert(0, result_text)
@@ -350,13 +362,15 @@ def drpdilution():
 
                 st.success(f"✅Mass: {mass:.3f} {unit}")
                 st.caption(f"From {conc:.2f} {conc_unit} × {vol:.2f} {vol_unit}")
+                st.markdown(r"**Formula:**$ \text{Mass} = \text{Concentration} \times \text{Volume}$")
+
 
                 result_text = f"DRP Mass\n con={conc:.2f} {conc_unit} × vol={vol:.2f} {vol_unit} → mass={mass:.3f} {unit}"
                 st.session_state.LabWhiz_history.insert(0, result_text)
                 st.session_state.LabWhiz_history = st.session_state.LabWhiz_history[:5]
 
             except Exception as e:
-                st.error(f"Error in mass calculation please use numericals only.")
+                st.error("Error in mass calculation please use numericals only.")
 def cc():
     st.info("Use:\nEstimate bacterial concentration in original sample after plating.\nCommon in: microbiology, antibiotic testing, fermentation.")
 
@@ -378,6 +392,7 @@ def cc():
 
             st.success(f"✅Estimated concentration: **{cfu_per_mL:.2e} CFU/mL**")
             st.caption(f"Based on {colonies} colonies at 1:{int(dilution_factor)} dilution and {plated_volume:.4f} mL plated.")
+            st.markdown(r"**Formula:**$ \text{CFU/mL} = \dfrac{\text{Colonies} \times \text{Dilution Factor}}{\text{Volume Plated (mL)}}$")
 
             result_text = f"CFU Count\n {colonies} colonies at 1:{int(dilution_factor)} → {cfu_per_mL:.2e} CFU/mL"
             st.session_state.LabWhiz_history.insert(0, result_text)
@@ -414,6 +429,7 @@ def gdf():
                 dilution_factor = final_vol_uL / stock_vol_uL
                 st.success(f"✅ Dilution Factor: **1:{dilution_factor:.2f}**")
                 st.caption(f"You diluted {stock_volume:.2f} {unit} up to {final_volume:.2f} {unit}, giving a 1:{dilution_factor:.2f} dilution.")
+                st.markdown(r"**Formula:** $\text{DF} = \dfrac{\text{Final Volume}}{\text{Stock Volume}}$")
 
                 # Save to history
                 result_text = f"Dilution Factor\n stock={stock_volume:.2f} {unit} → final={final_volume:.2f} {unit} → 1:{dilution_factor:.2f}"
@@ -442,6 +458,8 @@ def normality():
             normality = molarity * equivalents
             st.success(f"✅ Normality: {normality:.3f} N")
             st.caption(f"Normality = Molarity × Equivalents = {molarity:.3f} × {equivalents:.3f}")
+            st.markdown(r"**Formula:**$ N = M \times \text{Equivalents}$")
+
 
             result_text = f"Normality\n M={molarity:.3f} × Eq={equivalents:.3f} → N={normality:.3f}"
             st.session_state.LabWhiz_history.insert(0, result_text)
@@ -467,6 +485,8 @@ def molality():
             molality_value = moles / solvent_mass
             st.success(f"✅ Molality: {molality_value:.4f} mol/kg")
             st.caption(f"Molality = Moles of solute ÷ kg of solvent = {moles:.4f} ÷ {solvent_mass:.4f}")
+            st.markdown(r"**Formula:**$ molality= \dfrac{\text{moles of solute}}{\text{kg of solvent}}$")
+
 
             result_text = f"Molality\n Moles={moles:.4f}, Solvent={solvent_mass:.4f} kg → Molality={molality_value:.4f} mol/kg"
             st.session_state.LabWhiz_history.insert(0, result_text)

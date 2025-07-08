@@ -3,7 +3,7 @@ import math
 from PIL import Image
 import datetime
 import streamlit.components.v1 as components
-from calculations import(simpledilution,serialdilution,molarity,drpdilution,md,wv,vv,cc,gdf,normality,molality)
+from calculations import(simpledilution,serialdilution,molarity,Biomolecule_Dilution,md,wv,vv,cc,gdf,normality,molality)
 
 #giving intuitive lab tips 
 import random
@@ -163,7 +163,7 @@ def LabWhiz():
         "Molarity Dilution",
         "Weight/Volume(%w/v)",
         "Volume/Volume (% v/v)",
-        "DNA/RNA/Protein Dilution",
+        "Biomolecule Dilution/Mass",
         "CFU / Cell Culture Calculation"],help="Use the type of calculation u want related to your lab work.")
     
     if type =="Simple dilution":
@@ -190,9 +190,9 @@ def LabWhiz():
     elif type=="Molarity Dilution":
         st.header("Molarity Dilution")
         md()
-    elif type=="DNA/RNA/Protein Dilution":
-        st.header("DNA/RNA/Protein Dilution")
-        drpdilution()
+    elif type=="Biomolecule Dilution/Mass":
+        st.header("Biomolecule Dilution/Mass")
+        Biomolecule_Dilution()
     elif type=="CFU / Cell Culture Calculation":
         st.header("CFU / Cell Culture Calculation")
         cc()
@@ -222,10 +222,10 @@ if __name__ == '__main__':
                     st.markdown(f"- {item}")
             else:
                 st.caption("No calculations yet.")
-                with st.sidebar.expander("💬 Send Feedback",expanded=False):
-                    st.markdown("""
-                                We'd love your feedback on LabWhiz — bug reports, feature requests, or just thoughts.
-                                👉 [Click here to open the feedback form](https://forms.gle/mBd51Fpz4Ly4tbUE6)  
-                                📝 Takes less than a minute!""")
+        with st.sidebar.expander("💬 Send Feedback",expanded=False):
+            st.markdown("""
+                        We'd love your feedback on LabWhiz — bug reports, feature requests, or just thoughts.
+                        👉 [Click here to open the feedback form](https://forms.gle/mBd51Fpz4Ly4tbUE6)  
+                        📝 Takes less than a minute!""")
     
     LabWhiz()  
