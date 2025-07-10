@@ -11,4 +11,12 @@ insights = [
     "🧰 Pre-weigh chemicals over paper or boat — balances are sensitive to spills.",
     "📅 Make fresh working dilutions — avoid reusing week-old diluted reagents.",
     "👁️ Scan protocols fully before starting — assumptions = errors.",
-    "♻️ Calibrate pipettes if they feel ‘off’ — accuracy degrades silently.",]
+    "♻️ Calibrate pipettes if they feel ‘off’ — accuracy degrades silently.",
+    "🌳 Did you know? Trees shed leaves to get nutrition from it after microbes breakdown those leaves into nutrients in ground around them.",
+    "In the fields of observation, chance favors only the prepared mind.— Louis Pasteur",
+    "Ask the right questions, and nature will open the doors to her secrets.-C.V. Raman",
+    "You have a right to perform your duty, but not to the results thereof.-Bhagavad Gita"
+    "Science is an international enterprise, and the pursuit of knowledge transcends borders.-Dr. Venkatraman Ramakrishnan (Nobel Prize – Ribosome structure)"
+    "Even if you’re forgotten, your science can still save millions.-Dr. Y.Subbarow"
+    "A scientist's work is not just to discover truth, but to apply it for the good of society.-Dr. Bhatnagar"
+    ]

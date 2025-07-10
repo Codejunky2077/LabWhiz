@@ -1,17 +1,20 @@
+#imports
 import streamlit as st
 import math
 from unit import CONCENTRATION_UNITS,VOLUME_UNITS,convert_vol,convert_conc
 from Molarmass import compoundmass
+from equivalance_no import chemical_equivalents
+
 #different calculation functions
 def simpledilution():
     st.info("Use: To dilute a stock solution to a lower concentration directly. Common in buffer prep, reagent dilution, etc.")
     col1, col2 = st.columns(2)
 
     with col1:
-        C1_str = st.text_input("Original Concentration (C₁)", placeholder="e.g. 50", key="c1_input")
+        C1_str = st.text_input("Initial Concentration (C₁)", placeholder="e.g. 50", key="c1_input")
         C1_unit = st.selectbox("C₁ Unit", list(CONCENTRATION_UNITS))
     with col2:
-        C2_str = st.text_input("Target Concentration (C₂)", placeholder="e.g. 10", key="c2_input")
+        C2_str = st.text_input("Target Concentration (C₂)", placeholder="e.g. 20", key="c2_input")
         C2_unit = st.selectbox("C₂ Unit", list(CONCENTRATION_UNITS))
 
     V2_str = st.text_input("Final Volume (V₂)", placeholder="e.g. 100", key="v2_input")
@@ -43,7 +46,7 @@ def simpledilution():
                 V1_converted = convert_vol(V1_uL, output_unit, to_base=False)
 
                 # History must update BEFORE success message
-                result_text = f"Simple dilution \nC1={C1:.2f} {C1_unit} →C2={C2:.2f} {C2_unit} in V2={V2:.2f} {V2_unit} → need V1={V1_converted:.2f} {output_unit}"
+                result_text = f"🧪 Simple dilution \nC1={C1:.2f} {C1_unit} →C2={C2:.2f} {C2_unit} in V2={V2:.2f} {V2_unit} → need V1={V1_converted:.2f} {output_unit}"
                 st.session_state.LabWhiz_history.insert(0, result_text)
                 st.session_state.LabWhiz_history = st.session_state.LabWhiz_history[:5]
 
@@ -52,7 +55,7 @@ def simpledilution():
                 st.markdown(r"**Formula:** $V_1 = \dfrac{C_2 \times V_2}{C_1}$")
 
             except Exception as e:
-                st.error(f"Error in dilution calculation please use numericals only.")
+                st.error(f"Error in dilution calculation please use numericals.")
 def serialdilution():
     st.info("Use: When you need very high dilutions (e.g., 1:10000), which are impractical in one step. Common in microbiology and pharmacology.")
     
@@ -108,18 +111,18 @@ def serialdilution():
         except ValueError:
             st.error("Please enter valid numerical values in all fields.")
         except Exception as e:
-            st.error("Error in serial dilution please use numericals only.")
+            st.error("Error in serial dilution please use numericals.")
 def molarity():
     st.info("Use: Quickly calculate how much solute is needed to make a solution of desired molarity. Common in: solution prep, reagents, buffers, and media preparation.")
 
-    molarity_str = st.text_input("Desired molarity (mol/L)", placeholder="e.g. 0.1", key="mol_molarity")
+    molarity_str = st.text_input("Desired molarity (mol/L)", placeholder="e.g. 0.2M of NaOH", key="mol_molarity")
     volume_str = st.text_input("Enter volume", placeholder="e.g. 1000", key="mol_volume")
     volume_unit = st.selectbox("Enter the unit of volume", list(VOLUME_UNITS))
     compound = st.selectbox("Choose compound to enter Molecular weight(g/mol)", list(compoundmass.keys()), index=0)
     if compound !="Custom":
         mw_str=compoundmass[compound]
     else:
-        mw_str = st.text_input("Enter Molecular weight (g/mol)", placeholder="e.g. 58.44", key="mol_mw")
+        mw_str = st.text_input("Enter Molecular weight (g/mol)", placeholder="e.g. 58.44 g/mol of NaCl", key="mol_mw")
 
     if st.button("🎯Calculate required mass"):
         try:
@@ -148,12 +151,12 @@ def molarity():
             st.session_state.LabWhiz_history = st.session_state.LabWhiz_history[:5]
 
         except Exception as e:
-            st.error(f"Error in molarity calculation please use numericals only.")
+            st.error(f"Error in molarity calculation please use numericals.")
 def wv():
     st.info("Use: To prepare a solution where a solid is dissolved in a liquid (e.g., NaCl, glucose).")
 
-    percent_str = st.text_input("Enter desired concentration (% w/v)", placeholder="e.g. 5", key="wv_percent")
-    volume_str = st.text_input("Enter total volume", placeholder="e.g. 250", key="wv_volume")
+    percent_str = st.text_input("Enter desired concentration (% w/v)", placeholder="e.g. 68% =of Nacl in solution", key="wv_percent")
+    volume_str = st.text_input("Enter total volume", placeholder="e.g. 250 ml of solution", key="wv_volume")
     volume_unit = st.selectbox("Select volume unit", list(VOLUME_UNITS.keys()))  # μL, mL, L
 
     if st.button("🚀Calculate required mass"):
@@ -193,11 +196,11 @@ def wv():
             st.session_state.LabWhiz_history = st.session_state.LabWhiz_history[:5]
 
         except Exception as e:
-            st.error(f"Error in w/v calculation please use numericals only.")
+            st.error(f"Error in w/v calculation please use numericals.")
 def vv():
     st.info("Note: Use for mixing two liquids, like ethanol or acetic acid in water. Example: making 70% ethanol = 70 mL ethanol in 100 mL solution.")
 
-    percent_str = st.text_input("Enter desired concentration (% v/v)", placeholder="e.g. 70", key="vv_percent")
+    percent_str = st.text_input("Enter desired concentration (% v/v)", placeholder="e.g. 70%=of ethanol with H2O", key="vv_percent")
     volume_str = st.text_input("Enter total solution volume", placeholder="e.g. 100", key="vv_volume")
     volumeunit = st.selectbox("Choose volume unit", list(VOLUME_UNITS))
 
@@ -237,17 +240,17 @@ def vv():
             st.session_state.LabWhiz_history = st.session_state.LabWhiz_history[:5]
 
         except Exception as e:
-            st.error(f"Error in v/v calculation please use numericals only.")
+            st.error(f"Error in v/v calculation please use numericals.")
 def md():
     st.info("Use:\nDilute a molar solution from a concentrated stock.\nCommon in buffer preparation, titrations, and chemical reactions.")
 
-    M1_str = st.text_input("Initial Molarity (M₁)", placeholder="e.g. 1.0", key="md_m1")
-    M2_str = st.text_input("Target Molarity (M₂)", placeholder="e.g. 0.1", key="md_m2")
+    M1_str = st.text_input("Initial Molarity (M₁)", placeholder="e.g. 3.0M of NaCl", key="md_m1")
+    M2_str = st.text_input("Target Molarity (M₂)", placeholder="e.g. 0.1M of NaCl", key="md_m2")
 
-    V2_str = st.text_input("Final Volume (V₂)", placeholder="e.g. 100", key="md_v2")
+    V2_str = st.text_input("Final Volume (V₂)", placeholder="e.g. 100 ml of volume", key="md_v2")
     V2_unit = st.selectbox("V₂ Unit", list(VOLUME_UNITS.keys()))
 
-    output_unit = st.selectbox("Output Volume Unit (V₁)", list(VOLUME_UNITS.keys()))
+    output_unit = st.selectbox("Initial needed Volume Unit (V₁)", list(VOLUME_UNITS.keys()))
 
     if st.button("🚀Calculate needed Volume (V₁)"):
         try:
@@ -277,7 +280,7 @@ def md():
             st.session_state.LabWhiz_history = st.session_state.LabWhiz_history[:5]
 
         except Exception as e:
-            st.error(f"Error in molarity dilution please use numericals only.")
+            st.error(f"Error in molarity dilution please use numericals.")
 def Biomolecule_Dilution():
     st.info("Use:\nDilute nucleic acids or proteins to desired working concentrations.\nCommon in PCR, gel loading, extractions, assays.")
     calc_type = st.radio("Choose what you want to calculate:", ["Dilution Volume (C₁×V₁ = C₂×V₂)", "Mass in Given Volume"], help="Two types of problem arise from wet lab here both types are given.")
@@ -285,10 +288,10 @@ def Biomolecule_Dilution():
     if calc_type == "Dilution Volume (C₁×V₁ = C₂×V₂)":
         col1, col2, col3 = st.columns(3)
         with col1:
-            C1_str = st.text_input("Stock Concentration (C₁)", placeholder="e.g. 100", key="drp_c1")
+            C1_str = st.text_input("Stock Concentration (C₁)", placeholder="e.g. 4", key="drp_c1")
             C1_unit = st.selectbox("C₁ Unit", list(CONCENTRATION_UNITS.keys()))
         with col2:
-            C2_str = st.text_input("Target Concentration (C₂)", placeholder="e.g. 10", key="drp_c2")
+            C2_str = st.text_input("Target Concentration (C₂)", placeholder="e.g. 1.23", key="drp_c2")
             C2_unit = st.selectbox("C₂ Unit", list(CONCENTRATION_UNITS.keys()))
         with col3:
             V2_str = st.text_input("Final Volume (V₂)", placeholder="e.g. 500", key="drp_v2")
@@ -327,7 +330,7 @@ def Biomolecule_Dilution():
                 st.session_state.LabWhiz_history = st.session_state.LabWhiz_history[:5]
 
             except Exception as e:
-                st.error(f"Error in biomolecule dilution please use numericals only.")
+                st.error(f"Error in biomolecule dilution please use numericals.")
 
     elif calc_type == "Mass in Given Volume":
         conc_str = st.text_input("Concentration", placeholder="e.g. 50", key="drp_conc")
@@ -370,11 +373,11 @@ def Biomolecule_Dilution():
                 st.session_state.LabWhiz_history = st.session_state.LabWhiz_history[:5]
 
             except Exception as e:
-                st.error("Error in mass calculation please use numericals only.")
+                st.error("Error in mass calculation please use numericals.")
 def cc():
     st.info("Use:\nEstimate bacterial concentration in original sample after plating.\nCommon in: microbiology, antibiotic testing, fermentation.")
 
-    colonies_str = st.text_input("Number of Colonies Counted", placeholder="e.g. 87", key="cc_colonies")
+    colonies_str = st.text_input("Number of Colonies Counted", placeholder="e.g. 87 number of Streptococcus pneumoniae colonies", key="cc_colonies")
     dilution_str = st.text_input("Dilution Factor (e.g., 1:1000 → enter 1000)", placeholder="e.g. 1000", key="cc_dilution")
     plated_vol_str = st.text_input("Volume Plated (in mL)", placeholder="e.g. 0.1", key="cc_volume")
 
@@ -399,7 +402,7 @@ def cc():
             st.session_state.LabWhiz_history = st.session_state.LabWhiz_history[:5]
 
         except Exception as e:
-            st.error(f"Error in CFU calculation please use numericals only.")
+            st.error(f"Error in CFU calculation please use numericals.")
 def gdf():
     st.info("Use:\nCalculate how much dilution occurred based on initial volume and final total volume.\nCommon in: buffer prep, enzyme assays, reagent use.")
 
@@ -439,12 +442,16 @@ def gdf():
         except (ValueError, TypeError):
             st.error("Please enter valid numerical values.")
         except Exception as e:
-            st.error(f"Error in dilution factor calculation please use numericals only.")
+            st.error(f"Error in dilution factor calculation please use numericals.")
 def normality():
     st.info("Use: Calculate normality(N) from molarity(M) and equivalents. Common in acid-base titrations and redox reactions.")
 
     molarity_str = st.text_input("Enter Molarity (mol/L)", placeholder="e.g. 0.5M of HCL in solution", key="norm_m")
-    eq_str = st.text_input("Enter Number of Equivalents (valence)", placeholder="e.g. 1 for HCl, 2 for H₂SO₄", key="norm_eq")
+    equivalence=st.selectbox("Choose your compound for equivalence no...",list(chemical_equivalents.keys()),index=0)
+    if equivalence!="Custom":
+        eq_str=chemical_equivalents[equivalence]
+    else:
+        eq_str = st.text_input("Enter Number of Equivalents (valence)", placeholder="e.g. 1 for HCl, 2 for H₂SO₄", key="norm_eq")
 
     if st.button("🧪 Calculate Normality"):
         try:
@@ -466,12 +473,12 @@ def normality():
             st.session_state.LabWhiz_history = st.session_state.LabWhiz_history[:5]
 
         except Exception as e:
-            st.error("Error in normality calculation enter valid numericals only.")
+            st.error("Error in normality calculation enter valid numericals.")
 def molality():
     st.info("Use: Calculate molality (mol/kg solvent). Useful when temperature affects volume — like in boiling point elevation or freezing point depression.")
 
-    moles_str = st.text_input("Amount of solute (in moles)", placeholder="e.g. 0.5", key="molality_moles")
-    solvent_mass_str = st.text_input("Mass of solvent (in kg)", placeholder="e.g. 0.2", key="molality_solvent")
+    moles_str = st.text_input("Amount of solute (in moles)", placeholder="e.g. 0.5 moles of HCl", key="molality_moles")
+    solvent_mass_str = st.text_input("Mass of solvent (in kg)", placeholder="e.g. 0.2kg of distilled water", key="molality_solvent")
 
     if st.button("🧪 Calculate Molality"):
         try:
@@ -485,7 +492,7 @@ def molality():
             molality_value = moles / solvent_mass
             st.success(f"✅ Molality: {molality_value:.4f} mol/kg")
             st.caption(f"Molality = Moles of solute ÷ kg of solvent = {moles:.4f} ÷ {solvent_mass:.4f}")
-            st.markdown(r"**Formula:**$ molality= \dfrac{\text{moles of solute}}{\text{kg of solvent}}$")
+            st.markdown(r"**Formula:** $ molality= \dfrac{\text{moles of solute}}{\text{kg of solvent}}$")
 
 
             result_text = f"Molality\n Moles={moles:.4f}, Solvent={solvent_mass:.4f} kg → Molality={molality_value:.4f} mol/kg"
@@ -493,4 +500,4 @@ def molality():
             st.session_state.LabWhiz_history = st.session_state.LabWhiz_history[:5]
 
         except Exception as e:
-            st.error("Error in molality calculation enter valid numericals only.")
+            st.error("Error in molality calculation enter valid numericals.")
