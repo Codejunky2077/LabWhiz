@@ -7,6 +7,12 @@ import streamlit.components.v1 as components
 from calculations import(simpledilution,serialdilution,molarity,Biomolecule_Dilution,md,wv,vv,cc,gdf,normality,molality)
 from sidebar import side_barfunc
 
+#web analytics
+components.html(
+    """<script defer data-domain="labwhiz.streamlit.app" src="https://plausible.io/js/script.outbound-links.pageview-props.tagged-events.js"></script>
+    <script>window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>
+    """,height=0)
+
 #giving intuitive lab tips 
 import random
 from wisdom import insights
