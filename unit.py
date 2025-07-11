@@ -12,9 +12,9 @@ CONCENTRATION_UNITS = {
     }
 
 VOLUME_UNITS = {
-    "μL(micro liters)": 1,
-    "mL(mili liters)": 1000,
-    "L(Liters)": 1_000_000
+    "μL (micro liters)": 1,
+    "mL (mili liters)": 1000,
+    "L (Liters)": 1_000_000
     }
 
 # --- Conversion Functions --- #

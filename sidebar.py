@@ -23,7 +23,7 @@ def side_barfunc():
             else:
                 st.caption("No calculations yet.")
                 
-        with st.sidebar.expander("💬 Send Feedback",expanded=False):
+        with st.sidebar.expander("💬 Want to make LabWhiz better? share your suggestions",expanded=False):
             st.markdown("""
                         We'd love your feedback on LabWhiz — bug reports, feature requests, or just thoughts.
                         👉 [Click here to open the feedback form](https://forms.gle/mBd51Fpz4Ly4tbUE6)  

@@ -155,7 +155,7 @@ def molarity():
 def wv():
     st.info("Use: To prepare a solution where a solid is dissolved in a liquid (e.g., NaCl, glucose).")
 
-    percent_str = st.text_input("Enter desired concentration (% w/v)", placeholder="e.g. 68% =of Nacl in solution", key="wv_percent")
+    percent_str = st.text_input("Enter desired concentration (% w/v)", placeholder="e.g. 68 ", key="wv_percent")
     volume_str = st.text_input("Enter total volume", placeholder="e.g. 250 ml of solution", key="wv_volume")
     volume_unit = st.selectbox("Select volume unit", list(VOLUME_UNITS.keys()))  # μL, mL, L
 
@@ -200,7 +200,7 @@ def wv():
 def vv():
     st.info("Note: Use for mixing two liquids, like ethanol or acetic acid in water. Example: making 70% ethanol = 70 mL ethanol in 100 mL solution.")
 
-    percent_str = st.text_input("Enter desired concentration (% v/v)", placeholder="e.g. 70%=of ethanol with H2O", key="vv_percent")
+    percent_str = st.text_input("Enter desired concentration (% v/v)", placeholder="e.g. 70", key="vv_percent")
     volume_str = st.text_input("Enter total solution volume", placeholder="e.g. 100", key="vv_volume")
     volumeunit = st.selectbox("Choose volume unit", list(VOLUME_UNITS))
 

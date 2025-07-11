@@ -158,20 +158,20 @@ st.markdown("""
 def LabWhiz():
     type = st.selectbox("Select the type of calculation needed...",[
         "",
-        "🧪 Simple dilution",
+        "Simple dilution",
         "Serial dilution",
         "General Dilution Factor",
         "Molarity(M)",
         "Normality(N)",
         "Molality(m)",
         "Molarity Dilution",
-        "⚖️ Weight/Volume(%w/v)",
-        " Volume/Volume (% v/v)",
-        "🧬 Biomolecule Dilution/Mass",
-        "🧫 CFU / Cell Culture Calculation"],help="Use the type of calculation u want related to your lab work.")
+        "Weight/Volume(%w/v)",
+        "Volume/Volume (% v/v)",
+        "Biomolecule Dilution/Mass",
+        "CFU / Cell Culture Calculation"],help="Use the type of calculation u want related to your lab work.")
     
-    if type =="🧪 Simple dilution":
-        st.header("🧪 Simple dilution")
+    if type =="Simple dilution":
+        st.header("Simple dilution")
         simpledilution()
     elif type =="Serial dilution":
         st.header("Serial dilution")
@@ -185,20 +185,20 @@ def LabWhiz():
     elif type=="Molality(m)":
         st.header("Molality(m)")
         molality()
-    elif type=="⚖️ Weight/Volume(%w/v)":
-        st.header("⚖️ Weight/Volume(%w/v)")
+    elif type=="Weight/Volume(%w/v)":
+        st.header("Weight/Volume(%w/v)")
         wv()
-    elif type==" Volume/Volume (% v/v)":
-        st.header(" Volume/Volume (% v/v)")
+    elif type=="Volume/Volume (% v/v)":
+        st.header("Volume/Volume (% v/v)")
         vv()
     elif type=="Molarity Dilution":
         st.header("Molarity Dilution")
         md()
-    elif type=="🧬 Biomolecule Dilution/Mass":
-        st.header("🧬 Biomolecule Dilution/Mass")
+    elif type=="Biomolecule Dilution/Mass":
+        st.header("Biomolecule Dilution/Mass")
         Biomolecule_Dilution()
-    elif type=="🧫 CFU / Cell Culture Calculation":
-        st.header("🧫 CFU / Cell Culture Calculation")
+    elif type=="CFU / Cell Culture Calculation":
+        st.header("CFU / Cell Culture Calculation")
         cc()
     elif type=="General Dilution Factor":
         st.header("General Dilution Factor")
