@@ -3,7 +3,7 @@ import streamlit as st
 import math
 from unit import CONCENTRATION_UNITS,VOLUME_UNITS,convert_vol,convert_conc
 from Molarmass import compoundmass
-from equivalance_no import chemical_equivalents
+from normality_dic import chemical_data
 
 #different calculation functions
 def simpledilution():
@@ -443,37 +443,6 @@ def gdf():
             st.error("Please enter valid numerical values.")
         except Exception as e:
             st.error(f"Error in dilution factor calculation please use numericals.")
-def normality():
-    st.info("Use: Calculate normality(N) from molarity(M) and equivalents. Common in acid-base titrations and redox reactions.")
-
-    molarity_str = st.text_input("Enter Molarity (mol/L)", placeholder="e.g. 0.5M of HCL in solution", key="norm_m")
-    equivalence=st.selectbox("Choose your compound for equivalence no...",list(chemical_equivalents.keys()),index=0)
-    if equivalence!="Custom":
-        eq_str=chemical_equivalents[equivalence]
-    else:
-        eq_str = st.text_input("Enter Number of Equivalents (valence)", placeholder="e.g. 1 for HCl, 2 for H₂SO₄", key="norm_eq")
-
-    if st.button("🧪 Calculate Normality"):
-        try:
-            molarity = float(molarity_str)
-            equivalents = float(eq_str)
-
-            if molarity <= 0 or equivalents <= 0:
-                st.error("Both molarity and equivalents must be greater than zero.")
-                return
-
-            normality = molarity * equivalents
-            st.success(f"✅ Normality: {normality:.3f} N")
-            st.caption(f"Normality = Molarity × Equivalents = {molarity:.3f} × {equivalents:.3f}")
-            st.markdown(r"**Formula:**$ N = M \times \text{Equivalents}$")
-
-
-            result_text = f"Normality\n M={molarity:.3f} × Eq={equivalents:.3f} → N={normality:.3f}"
-            st.session_state.LabWhiz_history.insert(0, result_text)
-            st.session_state.LabWhiz_history = st.session_state.LabWhiz_history[:5]
-
-        except Exception as e:
-            st.error("Error in normality calculation enter valid numericals.")
 def molality():
     st.info("Use: Calculate molality (mol/kg solvent). Useful when temperature affects volume — like in boiling point elevation or freezing point depression.")
 
@@ -501,3 +470,74 @@ def molality():
 
         except Exception as e:
             st.error("Error in molality calculation enter valid numericals.")
+def normality():
+    st.info("Use: Calculate normality (N) from molarity (M) and equivalent weight. Based on actual chemistry.")
+
+    molarity_str = st.text_input("Enter Molarity (mol/L)", placeholder="e.g. 0.5 for 0.5M HCl", key="norm_m")
+    compound = st.selectbox("Select compound from list", list(chemical_data.keys()), index=0, help="Select and autofill compounds from list and all parameters will be autofilled or give specific inputs through custom.")
+
+    valid_custom_inputs = True
+
+    if compound != "Custom":
+        molar_mass = chemical_data[compound]["molar_mass"]
+        n_factor = chemical_data[compound]["n_factor"]
+
+        if n_factor > 0:
+            equivalent_weight = molar_mass / n_factor
+            st.markdown(f"""
+            **Selected Compound:** `{compound}`  
+            • Molar Mass = `{molar_mass} g/mol`  
+            • n-factor = `{n_factor}`  
+            • Equivalent Weight = `{equivalent_weight:.3f} g/mol`
+            """)
+        else:
+            st.error("⚠️ n-factor must be greater than 0.")
+            return
+
+    else:
+        custom_mm = st.text_input("Enter Molar Mass (g/mol)", placeholder="e.g. 40.00 for NaOH", key="custom_mm")
+        custom_nf = st.text_input("Enter n-factor", placeholder="e.g. 1 for NaOH", key="custom_nf")
+
+        try:
+            if not custom_mm.strip() or not custom_nf.strip():
+                valid_custom_inputs = False
+                raise ValueError
+
+            molar_mass = float(custom_mm)
+            n_factor = float(custom_nf)
+
+            if molar_mass <= 0 or n_factor <= 0:
+                st.error("⚠️ Molar mass and n-factor must be greater than 0.")
+                return
+
+            equivalent_weight = molar_mass / n_factor
+            st.markdown(f"**Equivalent Weight (Custom):** {equivalent_weight:.3f} g/mol")
+
+        except ValueError:
+            st.info("Please enter numerical values for molar mass and n-factor.")
+            return
+
+    if st.button("🧪 Calculate Normality"):
+        try:
+            if not molarity_str.strip():
+                st.warning("Please enter a valid molarity value.")
+                return
+
+            molarity = float(molarity_str)
+
+            if molarity <= 0 or equivalent_weight <= 0:
+                st.error("All values must be greater than zero.")
+                return
+
+            normality = molarity * n_factor
+
+            st.success(f"✅ Normality: {normality:.3f} N")
+            st.caption(f"Computed using: N = M / (Eq. Wt) = {molarity:.3f} / ({molar_mass:.3f} / {n_factor}) = {normality:.3f}")
+            st.markdown(r"**Formula:** $N = \frac{M}{\frac{Molar\ Mass}{n\text{-}factor}}$")
+
+            result_text = f"Normality of {compound}: M={molarity:.3f}, EqW={equivalent_weight:.3f} → N={normality:.3f}"
+            st.session_state.LabWhiz_history.insert(0, result_text)
+            st.session_state.LabWhiz_history = st.session_state.LabWhiz_history[:5]
+
+        except ValueError:
+            st.error("⚠️ Invalid molarity input. Please enter a valid number.")
