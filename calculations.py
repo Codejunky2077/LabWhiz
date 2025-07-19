@@ -56,62 +56,6 @@ def simpledilution():
 
             except Exception as e:
                 st.error(f"Error in dilution calculation please use numericals.")
-def serialdilution():
-    st.info("Use: When you need very high dilutions (e.g., 1:10000), which are impractical in one step. Common in microbiology and pharmacology.")
-    
-    col1, col2 = st.columns(2)
-    with col1:
-        C1_str = st.text_input("Initial Concentration (C₁)", placeholder="e.g. 100", key="serial_c1")
-        C1_unit = st.selectbox("C₁ Unit", list(CONCENTRATION_UNITS))
-    with col2:
-        C2_str = st.text_input("Desired Final Concentration (C₂)", placeholder="e.g. 0.01", key="serial_c2")
-        C2_unit = st.selectbox("C₂ Unit", list(CONCENTRATION_UNITS))
-
-    dilution_factor_str = st.text_input("Dilution Ratio per Step (e.g., 1:10 → enter 10)", placeholder="e.g. 10", key="serial_ratio")
-    volume_stock_str = st.text_input("Volume taken per Step (µL)", placeholder="e.g. 100", key="serial_vstock")
-    volume_diluent_str = st.text_input("Diluent Volume per Step (µL)", placeholder="e.g. 900", key="serial_vdiluent")
-
-    if st.button("🚀Calculate number of steps"):
-        try:
-            # Parse and validate inputs
-            C1 = float(C1_str)
-            C2 = float(C2_str)
-            dilution_factor = float(dilution_factor_str)
-            volume_stock = float(volume_stock_str)
-            volume_diluent = float(volume_diluent_str)
-
-            if any(x <= 0 for x in [C1, C2, dilution_factor, volume_stock, volume_diluent]):
-                st.error("All inputs must be greater than zero.")
-                return
-
-            C1_u = convert_conc(C1, C1_unit)
-            C2_u = convert_conc(C2, C2_unit)
-
-            if C2_u >= C1_u:
-                st.error("Desired concentration must be lower than starting concentration.")
-                return
-
-            total_dilution = C1_u / C2_u
-            epsilon = 1e-9  # Prevent floating point mismatch
-            steps_needed = math.ceil(math.log(total_dilution + epsilon, dilution_factor))
-
-            # Calculate final actual concentration
-            actual_final = C1_u / (dilution_factor ** steps_needed)
-            actual_final_user_unit = convert_conc(actual_final, C2_unit, to_base=False)
-
-            # Save result to history first
-            result_text = f"Serial Dilution\n C1={C1:.2f} {C1_unit} → C2≈{actual_final_user_unit:.4f} {C2_unit} in {steps_needed} steps (1:{dilution_factor} each)"
-            st.session_state.LabWhiz_history.insert(0, result_text)
-            st.session_state.LabWhiz_history = st.session_state.LabWhiz_history[:5]
-
-            st.success(f"✅You need {steps_needed} serial dilution step(s) to reach ~{actual_final_user_unit:.4f} {C2_unit} from {C1:.2f} {C1_unit}")
-            st.caption(f"Each step: {volume_stock:.2f} µL + {volume_diluent:.2f} µL diluent (1:{dilution_factor:.1f} dilution)")
-            st.markdown(r"**Formula:**$\text{Steps} = \left\lceil \dfrac{\log(C_1 / C_2)}{\log(\text{Dilution Factor})} \right\rceil$")
-
-        except ValueError:
-            st.error("Please enter valid numerical values in all fields.")
-        except Exception as e:
-            st.error("Error in serial dilution please use numericals.")
 def molarity():
     st.info("Use: Quickly calculate how much solute is needed to make a solution of desired molarity. Common in: solution prep, reagents, buffers, and media preparation.")
 
@@ -541,3 +485,78 @@ def normality():
 
         except ValueError:
             st.error("⚠️ Invalid molarity input. Please enter a valid number.")
+def serialdilution():
+    st.info("Use: When very high dilutions (e.g., 1:10000) are needed via multiple steps. Common in microbiology/pharmacology.")
+
+    col1, col2 = st.columns(2)
+    with col1:
+        C1_str = st.text_input("Initial Concentration (C₁)", placeholder="e.g. 100", key="serial_c1")
+        C1_unit = st.selectbox("C₁ Unit", list(CONCENTRATION_UNITS.keys()))
+    with col2:
+        C2_str = st.text_input("Desired Final Concentration (C₂)", placeholder="e.g. 0.01", key="serial_c2")
+        C2_unit = st.selectbox("C₂ Unit", list(CONCENTRATION_UNITS.keys()))
+
+    dilution_factor_str = st.text_input("Dilution Ratio per Step (e.g., 1:10 → enter 10)", placeholder="e.g. 10", key="serial_ratio")
+    volume_stock_str = st.text_input("Volume taken per Step (µL)", placeholder="e.g. 100", key="serial_vstock")
+    volume_diluent_str = st.text_input("Diluent Volume per Step (µL)", placeholder="e.g. 900", key="serial_vdiluent")
+
+    if st.button("🚀 Calculate number of steps"):
+        try:
+            # parse and convert inputs
+            C1_norm = convert_conc(float(C1_str.strip()), C1_unit)
+            C2_raw = float(C2_str.strip())
+            C2_norm = convert_conc(C2_raw, C2_unit)
+            dilution_factor = float(dilution_factor_str)
+            volume_stock = float(volume_stock_str)
+            volume_diluent = float(volume_diluent_str)
+
+            # basic validations
+            if any(x <= 0 for x in [C1_norm, C2_norm, dilution_factor, volume_stock, volume_diluent]):
+                st.error("All inputs must be greater than zero.")
+                return
+            if C2_norm >= C1_norm:
+                st.error("Final concentration must be lower than starting concentration.")
+                return
+
+            # check volume-based dilution ratio consistency
+            actual_ratio = (volume_stock + volume_diluent) / volume_stock
+            if abs(actual_ratio - dilution_factor) > 0.05:
+                st.warning(f"⚠️ Volume-based ratio {actual_ratio:.2f} ≠ entered ratio {dilution_factor:.2f}. Fix for accuracy.")
+
+            # total dilution needed
+            total_dilution = C1_norm / C2_norm
+            exact_steps = math.log(total_dilution) / math.log(dilution_factor)
+            floor_steps = math.floor(exact_steps)
+            ceil_steps = math.ceil(exact_steps)
+
+            # compute actual concentrations
+            conc_floor = C1_norm / (dilution_factor ** floor_steps)
+            conc_ceil = C1_norm / (dilution_factor ** ceil_steps)
+
+            # choose minimal steps that achieve <= target
+            if conc_floor <= C2_norm:
+                steps_needed = floor_steps
+                actual_final = conc_floor
+            else:
+                steps_needed = ceil_steps
+                actual_final = conc_ceil
+
+            # convert back to user unit
+            actual_final_user = actual_final / CONCENTRATION_UNITS[C2_unit]
+
+            # prepare history entry
+            result_text = (
+                f"Serial Dilution: {float(C1_str):.2f} {C1_unit} → ~{actual_final_user:.4f} {C2_unit} "
+                f"in {steps_needed} steps (1:{dilution_factor} each)"
+            )
+            st.session_state.LabWhiz_history.insert(0, result_text)
+            st.session_state.LabWhiz_history = st.session_state.LabWhiz_history[:5]
+
+            # display
+            st.success(f"✅ You need {steps_needed} serial dilution step(s) to reach ~{actual_final_user:.4f} {C2_unit}")
+            st.caption(f"Each step: {volume_stock:.0f} µL + {volume_diluent:.0f} µL diluent")
+
+        except ValueError:
+            st.error("Please enter valid numerical values in all fields.")
+        except Exception as e:
+            st.error(f"Unexpected error: {e}")
