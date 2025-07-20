@@ -7,6 +7,15 @@ import streamlit.components.v1 as components
 from calculations import(simpledilution,serialdilution,molarity,Biomolecule_Dilution,md,wv,vv,cc,gdf,normality,molality)
 from sidebar import side_barfunc
 
+#adding download 
+# Inject the manifest and meta tags
+components.html("""
+    <link rel="manifest" href="https://raw.githubusercontent.com/Codejunky2077/LabWhiz/refs/heads/main/manifest.json">
+    <meta name="theme-color" content="#1f2937">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+                """, height=0)
+
 #web analytics
 components.html(
     """<script defer data-domain="labwhiz.streamlit.app" src="https://plausible.io/js/script.outbound-links.pageview-props.tagged-events.js"></script>
