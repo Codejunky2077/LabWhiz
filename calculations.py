@@ -7,55 +7,160 @@ from normality_dic import chemical_data
 
 #different calculation functions
 def simpledilution():
-    st.info("Use: To dilute a stock solution to a lower concentration directly. Common in buffer prep, reagent dilution, etc.")
+    st.info("💡 Fill any 3 of C₁, V₁, C₂, V₂ to get the 4th value. *Leave both value and unit empty for the one you want to calculate.*")
+
+    # --- Input Change Tracking ---
+    for key in ("C1", "V1", "C2", "V2"):
+        if st.session_state.get(key) != st.session_state.get(f"_prev_{key}", None):
+            st.session_state.result_value = None
+            st.session_state.result_type = None
+            st.session_state.missing_key = None
+            st.session_state[f"_prev_{key}"] = st.session_state.get(key)
+
+    # --- INPUT GRID ---
     col1, col2 = st.columns(2)
 
     with col1:
-        C1_str = st.text_input("Initial Concentration (C₁)", placeholder="e.g. 50", key="c1_input")
-        C1_unit = st.selectbox("C₁ Unit", list(CONCENTRATION_UNITS))
+        with st.container():
+            c1_col1, c1_col2 = st.columns([2, 1])
+            C1 = c1_col1.text_input("Initial Concentration (C₁)", key="C1")
+            with c1_col2:
+                st.caption("C₁ unit")
+                C1_unit = st.selectbox("", CONCENTRATION_UNITS, key="C1_unit", label_visibility="collapsed")
+
+        with st.container():
+            v1_col1, v1_col2 = st.columns([2, 1])
+            V1 = v1_col1.text_input("Stock Volume (V₁)", key="V1")
+            with v1_col2:
+                st.caption("V₁ unit")
+                V1_unit = st.selectbox("", VOLUME_UNITS, key="V1_unit", label_visibility="collapsed")
+
     with col2:
-        C2_str = st.text_input("Target Concentration (C₂)", placeholder="e.g. 20", key="c2_input")
-        C2_unit = st.selectbox("C₂ Unit", list(CONCENTRATION_UNITS))
+        with st.container():
+            c2_col1, c2_col2 = st.columns([2, 1])
+            C2 = c2_col1.text_input("Final Concentration (C₂)", key="C2")
+            with c2_col2:
+                st.caption("C₂ unit")
+                C2_unit = st.selectbox("", CONCENTRATION_UNITS, key="C2_unit", label_visibility="collapsed")
 
-    V2_str = st.text_input("Final Volume (V₂)", placeholder="e.g. 100", key="v2_input")
-    V2_unit = st.selectbox("V₂ Unit", list(VOLUME_UNITS))
+        with st.container():
+            v2_col1, v2_col2 = st.columns([2, 1])
+            V2 = v2_col1.text_input("Final Volume (V₂)", key="V2")
+            with v2_col2:
+                st.caption("V₂ unit")
+                V2_unit = st.selectbox("", VOLUME_UNITS, key="V2_unit", label_visibility="collapsed")
 
-    output_unit = st.selectbox("Output Volume Unit (V₁)", list(VOLUME_UNITS), help="You can change unit of solution you need which is possible in your lab.")
+    # --- VALIDATION ---
+    inputs = {"C1": C1, "V1": V1, "C2": C2, "V2": V2}
+    filled = [k for k, v in inputs.items() if v.strip() != ""]
+    if len(filled) < 3:
+        st.info("👈 Fill any 3 fields to find the missing one.")
+        return
+    if len(filled) > 3:
+        st.warning("⚠️ Please fill exactly 3 fields, leaving the 4th blank.")
+        return
 
-    calculate = st.button("🚀 Get needed Volume (V₁)")
+    missing = [k for k in inputs if k not in filled][0]
+    st.success(f"Click 'Calculate' to find value of: **{missing}**")
 
-    if calculate:
+    # --- CALCULATION ---
+    if st.button("🚀 Calculate"):
         try:
-            C1 = float(C1_str)
-            C2 = float(C2_str)
-            V2 = float(V2_str)
-        except (ValueError, TypeError):
-            st.error("Please enter valid numerical values for C₁, C₂, and V₂.")
+            if "C1" not in (missing,):
+                C1_val = float(C1.strip())
+                if C1_val <= 0:
+                    raise ValueError("C₁ must be > 0")
+                C1_u = convert_conc(C1_val, C1_unit)
+
+            if "C2" not in (missing,):
+                C2_val = float(C2.strip())
+                if C2_val <= 0:
+                    raise ValueError("C₂ must be > 0")
+                C2_u = convert_conc(C2_val, C2_unit)
+
+            if "V1" not in (missing,):
+                V1_val = float(V1.strip())
+                if V1_val <= 0:
+                    raise ValueError("V₁ must be > 0")
+                V1_u = convert_vol(V1_val, V1_unit)
+
+            if "V2" not in (missing,):
+                V2_val = float(V2.strip())
+                if V2_val <= 0:
+                    raise ValueError("V₂ must be > 0")
+                V2_u = convert_vol(V2_val, V2_unit)
+        except ValueError:
+            st.error("❌ Input error: fill valid numericals.")
+            return
+        except Exception:
+            st.error("❌ Unexpected input error. Check your values.")
             return
 
-        if C1 <= 0 or C2 <= 0 or V2 <= 0:
-            st.error("Parameter values must be greater than 0.")
-        elif C2 > C1:
-            st.error("Target concentration (C₂) cannot exceed original concentration (C₁).")
+        # Warnings (not errors)
+        if "C1" not in (missing,) and "C2" not in (missing,) and C2_u > C1_u:
+            st.warning("⚠️ You're concentrating the solution (C₂ > C₁). This is not a dilution.")
+        if "V1" not in (missing,) and "V2" not in (missing,) and V2_u < V1_u:
+            st.warning("⚠️ You're concentrating the solution (V₂ < V₁). This is not a dilution.")
+
+        # Compute missing value
+        try:
+            if missing == "C1":
+                raw = (C2_u * V2_u) / V1_u
+                result_type = "conc"
+            elif missing == "C2":
+                raw = (C1_u * V1_u) / V2_u
+                result_type = "conc"
+            elif missing == "V1":
+                raw = (C2_u * V2_u) / C1_u
+                result_type = "vol"
+            elif missing == "V2":
+                raw = (C1_u * V1_u) / C2_u
+                result_type = "vol"
+
+            st.session_state.result_value = raw
+            st.session_state.result_type = result_type
+            st.session_state.missing_key = missing
+        except ZeroDivisionError as zde:
+            st.error(f"❌ Math error: {zde}")
+            return
+        except:
+            st.error("❌ Calculation failed unexpectedly.")
+            return
+
+    # --- DISPLAY RESULT ---
+    if st.session_state.get("result_value") is not None:
+        if st.session_state.result_type == "conc":
+            unit = st.selectbox("Select concentration unit", CONCENTRATION_UNITS, key="out_u")
+            display = convert_conc(st.session_state.result_value, unit, to_base=False)
         else:
-            try:
-                C1_u = convert_conc(C1, C1_unit)
-                C2_u = convert_conc(C2, C2_unit)
-                V2_u = convert_vol(V2, V2_unit)
-                V1_uL = (C2_u * V2_u) / C1_u
-                V1_converted = convert_vol(V1_uL, output_unit, to_base=False)
+            unit = st.selectbox("Select volume unit", VOLUME_UNITS, key="out_u")
+            display = convert_vol(st.session_state.result_value, unit, to_base=False)
 
-                # History must update BEFORE success message
-                result_text = f"🧪 Simple dilution \nC1={C1:.2f} {C1_unit} →C2={C2:.2f} {C2_unit} in V2={V2:.2f} {V2_unit} → need V1={V1_converted:.2f} {output_unit}"
-                st.session_state.LabWhiz_history.insert(0, result_text)
-                st.session_state.LabWhiz_history = st.session_state.LabWhiz_history[:5]
+        st.success(f"✅ **{st.session_state.missing_key} = {display:.4f} {unit}**")
+        st.markdown(r"**Formula:** $C_1 \cdot V_1 = C_2 \cdot V_2$")
 
-                st.success(f"✅ Needed Volume (V₁): {V1_converted:.2f} {output_unit}")
-                st.caption(f"Pipette {V1_converted:.2f} {output_unit} of {C1:.2f} {C1_unit} stock and dilute to {V2:.2f} {V2_unit} to get {C2:.2f} {C2_unit}.")
-                st.markdown(r"**Formula:** $V_1 = \dfrac{C_2 \times V_2}{C_1}$")
+        # --- HISTORY ---
+        try:
+            known = {
+                "C1": (C1, C1_unit),
+                "V1": (V1, V1_unit),
+                "C2": (C2, C2_unit),
+                "V2": (V2, V2_unit)
+            }
+            known_values = [float(known[k][0]) for k in known if k != missing]
+            known_units = [known[k][1] for k in known if k != missing]
+            known_labels = [k for k in known if k != missing]
 
-            except Exception as e:
-                st.error(f"Error in dilution calculation please use numericals.")
+            result_text = f"Simple Dilution → {known_labels[0]}={known_values[0]:.2f} {known_units[0]}, {known_labels[1]}={known_values[1]:.2f} {known_units[1]} → {missing}={display:.2f} {unit}"
+
+            if "LabWhiz_history" not in st.session_state:
+                st.session_state.LabWhiz_history = []
+            st.session_state.LabWhiz_history.insert(0, result_text)
+            st.session_state.LabWhiz_history = st.session_state.LabWhiz_history[:5]
+        except:
+            pass  # Silent fail on history
+
+
 def molarity():
     st.info("Use: Quickly calculate how much solute is needed to make a solution of desired molarity. Common in: solution prep, reagents, buffers, and media preparation.")
 
