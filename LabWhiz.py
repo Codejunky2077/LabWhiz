@@ -7,15 +7,6 @@ import streamlit.components.v1 as components
 from calculations import(simpledilution,serialdilution,molarity,Biomolecule_Dilution,md,wv,vv,cc,gdf,normality,molality)
 from sidebar import side_barfunc
 
-#adding download 
-# Inject the manifest and meta tags
-components.html("""
-                <link rel="manifest" href="https://adorable-druid-ec25f9.netlify.app/manifest.json">
-                <meta name="theme-color" content="#1f2937"/>
-                <link rel="icon" href="https://adorable-druid-ec25f9.netlify.app/lab-items-192.png" type="image/png">
-                """, height=0)
-
-
 
 #web analytics
 components.html(
