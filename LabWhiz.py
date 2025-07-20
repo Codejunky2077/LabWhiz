@@ -10,10 +10,17 @@ from sidebar import side_barfunc
 #adding download 
 # Inject the manifest and meta tags
 components.html("""
-                <link rel="manifest" href="https://raw.githubusercontent.com/Codejunky2077/LabWhiz/refs/heads/main/manifest.json">
-                <meta name="theme-color" content="#4CAF50"/>
+                <link rel="manifest" href="https://raw.githubusercontent.com/Codejunky2077/LabWhiz/main/manifest.json">
+                <meta name="application-name" content="LabWhiz">
+                <meta name="theme-color" content="#4CAF50">
+                <meta name="apple-mobile-web-app-capable" content="yes">
+                <meta name="apple-mobile-web-app-status-bar-style" content="default">
+                <meta name="apple-mobile-web-app-title" content="LabWhiz">
                 <link rel="icon" href="https://raw.githubusercontent.com/Codejunky2077/LabWhiz/main/lab-items.png" type="image/png">
+                <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/Codejunky2077/LabWhiz/main/lab-items.png">
                 """, height=0)
+
+
 
 #web analytics
 components.html(
@@ -42,7 +49,7 @@ if st.session_state.rerun_flag:
     st.experimental_rerun()
 
 #Tab appearance
-st.set_page_config(page_title="LabWhiz by Bionika", page_icon=Image.open("Bionika_tablogo.png"), layout="wide")
+st.set_page_config(page_title="LabWhiz by Bionika", page_icon=Image.open("lab-items.png"), layout="wide")
 
 #css inject for appearance
 #text
