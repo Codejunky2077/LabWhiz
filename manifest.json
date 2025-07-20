@@ -1,7 +1,7 @@
 {
   "name": "LabWhiz",
   "short_name": "LabWhiz",
-  "start_url": ".",
+  "start_url": "https://labwhiz.streamlit.app/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#1f2937",
