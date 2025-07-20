@@ -10,14 +10,9 @@ from sidebar import side_barfunc
 #adding download 
 # Inject the manifest and meta tags
 components.html("""
-                <link rel="manifest" href="https://raw.githubusercontent.com/Codejunky2077/LabWhiz/main/manifest.json">
-                <meta name="application-name" content="LabWhiz">
-                <meta name="theme-color" content="#4CAF50">
-                <meta name="apple-mobile-web-app-capable" content="yes">
-                <meta name="apple-mobile-web-app-status-bar-style" content="default">
-                <meta name="apple-mobile-web-app-title" content="LabWhiz">
-                <link rel="icon" href="https://raw.githubusercontent.com/Codejunky2077/LabWhiz/main/lab-items.png" type="image/png">
-                <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/Codejunky2077/LabWhiz/main/lab-items.png">
+                <link rel="manifest" href="https://raw.githubusercontent.com/Codejunky2077/LabWhiz/refs/heads/main/manifest.json">
+                <meta name="theme-color" content="#1f2937"/>
+                <link rel="icon" href="https://raw.githubusercontent.com/Codejunky2077/LabWhiz/main/lab-items-192.png" type="image/png">
                 """, height=0)
 
 
