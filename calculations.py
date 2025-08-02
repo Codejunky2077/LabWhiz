@@ -159,8 +159,6 @@ def simpledilution():
             st.session_state.LabWhiz_history = st.session_state.LabWhiz_history[:5]
         except:
             pass  # Silent fail on history
-
-
 def molarity():
     st.info("Use: Quickly calculate how much solute is needed to make a solution of desired molarity. Common in: solution prep, reagents, buffers, and media preparation.")
 

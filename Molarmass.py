@@ -1,5 +1,4 @@
 compoundmass={
-    "":"",
     "Custom": None,  # Default placeholder
     "NaCl- 58.44": 58.44,
     "KCl- 74.55": 74.55,
