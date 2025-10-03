@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#2e7d32">
+  <title>LabWhiz</title>
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="icons\lab-items-192.png">
+  <style>
+    html, body { height: 100%; margin: 0; }
+    body { display: flex; flex-direction: column; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
+    header { padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; background: #f8f8f8; border-bottom: 1px solid #e6e6e6; }
+    .brand { display: flex; gap: 8px; align-items: center; font-weight: 600; }
+    #install { display: none; padding: 8px 12px; border-radius: 9999px; border: 0; box-shadow: 0 1px 2px rgba(0,0,0,.1); background: #2e7d32; color: white; cursor: pointer; }
+    #appframe { border: 0; width: 100%; height: calc(100vh - 49px); }
+    .offline { display:none; padding:12px; background:#fff3cd; color:#664d03; border-bottom:1px solid #ffecb5; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">🧪 LabWhiz</div>
+    <button id="install" aria-label="Install LabWhiz">Install</button>
+  </header>
+  <div id="offline" class="offline">You are offline. The app shell is cached, but the live calculator requires internet.</div>
+  <iframe id="appframe" src="https://labwhiz.streamlit.app/?embed=true" allow="clipboard-read; clipboard-write"></iframe>
+
+  <script src="/install.js" defer></script>
+  <script>
+    // Basic online/offline indicator
+    function updateOnlineStatus() {
+      document.getElementById('offline').style.display = navigator.onLine ? 'none' : 'block';
+    }
+    window.addEventListener('online',  updateOnlineStatus);
+    window.addEventListener('offline', updateOnlineStatus);
+    updateOnlineStatus();
+
+    // Service worker registration
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/service-worker.js');
+      });
+    }
+  </script>
+</body>
+</html>
